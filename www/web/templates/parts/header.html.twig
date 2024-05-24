@@ -1,0 +1,31 @@
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+        <link rel="stylesheet" href="/assets/css/bootstrap-slate.min.css" />
+        <link rel="stylesheet" href="/assets/css/dataTables.dataTables.min.css"/>
+		<link rel="stylesheet" href="/assets/css/style.css?ver={{ date().timestamp }}"/>
+
+		<script src="/assets/js/jquery-3.7.1.min.js" type="text/javascript"></script>
+        <script src="/assets/js/zebra_tooltips.min.js "></script>
+        <script src="/assets/js/dataTables.min.js" type="text/javascript" charset="utf8" ></script>
+        <script src="/assets/js/rando-min.js"></script>
+
+        <script src="https://kit.fontawesome.com/94ee80c600.js" crossorigin="anonymous"></script>
+        
+        <title>Games Manager</title>
+	</head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark" aria-label="Fourth navbar example">
+            <div class="container-fluid" style="position: relative;">
+                <div class="d-flex">
+                    <a class="navbar-brand" href="/">🎮 Games Manager</a>		
+                </div>
+                <div class="dropdown text-end" style="position: absolute;	top: 12px; right: 24px;">
+                    <a href="{{ backend }}/admin/login"><button class="btn btn-sm navbar-btn btn-info"><i class="fa-solid fa-screwdriver-wrench"></i> Backend Login&nbsp; <i class="bi bi-box-arrow-in-right text-white fs-6"></i></button></a>
+                </div>
+            </div>
+        </nav>
+        
+	    <div class="container-fluid"> 

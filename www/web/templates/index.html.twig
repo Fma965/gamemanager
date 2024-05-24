@@ -1,0 +1,54 @@
+{% include 'parts/header.html.twig' %}
+<div class="card card-body p-5 my-4 rounded-3">
+    <h3>Hello {{ userData.name|capitalize }}!</h3>
+    <div class="filter-wrapper">
+        <div id="players">
+            <h4>Players <span id="player-count"></span></h4>
+            {% for player in players %}
+                <span class="tooltips" title="{{ player.name }}">
+                    <img class="avatar-lg" src="{{ player.avatar_url }}"></img>
+                    <input type="checkbox" class="filter-checkbox player-counter" data-value="{{ player.id }}" value="{{ player.id }}"/>
+                </span>
+            {% endfor %}
+        </div>
+        <div id="genres">
+            <h4>Genres</h4> 
+            {% set allgenres = '' %}
+            {% for genre in genres %}
+                {% set allgenres = allgenres ~ genre.name ~ '|' %}
+                <span>
+                    <input type="checkbox" class="filter-checkbox genre" data-value="{{ genre.name }}" value="{{ genre.name }}" checked/>{{ genre.name }}
+                </span>
+            {% endfor %}
+            <span id="genre-list" style="display:none;">{{ allgenres|trim('|', 'right') }}</span>
+        </div>
+        <div id="options">
+            <h4>Settings</h4> 
+            <span>
+                <input type="checkbox" class="filter-checkbox settings tooltips" id="free-games" data-value="free" value="free"  title="Include games that are free to play" checked>Free Games
+            </span>
+            <span>
+                <input type="checkbox" class="filter-checkbox settings tooltips" id="remote-play" data-value="remote" value="remote" title="Include games that not all players own but are playable via Remote Play Together" checked>Remote Play Games
+            </span>
+        </div>
+        <button class="btn navbar-btn btn-lg btn-success"  href="javascript:void(0)" id="random">Get Random Game</button>
+    </div>
+
+    <div class="table-responsive table-borderless">
+        <table id="games" class="table games stripe" style="width:100%">
+            <thead class="thead">
+                <tr>
+                    <th>Game</th>
+                    <th>Owned By</th>
+                    <th>Platforms</th>
+                    <th>Genre</th>
+                    <th><i class="fa-solid fa-user-minus"></i></th>
+                    <th><i class="fa-solid fa-user-plus"></i></th>
+                    <th>Free</th>
+                    <th>Remote Play Together</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>    
+{% include 'parts/footer.html.twig' %}
