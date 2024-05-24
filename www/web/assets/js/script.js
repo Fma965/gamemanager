@@ -112,37 +112,89 @@ jQuery(document).ready(function ($) {
         
         "initComplete": function(settings, json) {
             jQuery.Zebra_Tooltips(jQuery('.tooltips'));
+
+            var url = new URL(window.location.href);
+            
+            var players = url.searchParams.get("players").toLowerCase().split(",");
+            if(players !== null) {
+                players.forEach(function(player) {
+                    jQuery('.player-counter[data-name="'+player+'"]').prop( "checked", true );
+                });
+            }
+            var genres = url.searchParams.get("genres").toLowerCase().split(",");
+            if(genres !== null) {
+                jQuery.each(jQuery('.genre'), function(i,elem){
+                    jQuery(elem).prop( "checked", false)
+                });
+                genres.forEach(function(genre) {
+                    jQuery('.genre[data-value="'+genre+'"]').prop( "checked", true );
+                });
+            }
+            
+            var free = url.searchParams.get("free");
+            if (free) jQuery('#free-games').prop( "checked", false);
+
+            var remote = url.searchParams.get("remote");
+            if (remote) jQuery('#remote-play').prop( "checked", false );
+
+            FilterTable();
         }
     });
 
     jQuery(document).on("change", "input[class^='filter-checkbox']", function () {
+        FilterTable();
+    });
 
+    function FilterTable() {
         dataTable.search('').columns().search('').draw();
         jQuery('#games tr').show();
 
         var searchTerms = []
+        var urlFilterPlayers = []
         jQuery.each(jQuery('.player-counter'), function(i,elem){
-            if(jQuery(elem).prop('checked')) searchTerms.push(jQuery(this).val());
+            if(jQuery(elem).prop('checked')) {
+                searchTerms.push(jQuery(this).val());
+                urlFilterPlayers.push(jQuery(this).data("name"))
+            }
         })
+        urlFilterPlayers = "?players=" + urlFilterPlayers.join(",");
 
         var players = searchTerms.length == 0 ? "" : '(' + searchTerms.join(' ') + ')';
         var regex = [];
         var settings = "";
 
+        var urlFilterFree = "&free="
         regex.push('paid');
-        jQuery('#free-games').prop('checked') ? regex.push('free') : "";
-        jQuery('#remote-play').prop('checked') ? regex.push('remote') : regex.push('online');
+        if(jQuery('#free-games').prop('checked')) {
+            regex.push('free') 
+            urlFilterFree += "true";
+        } else {
+            urlFilterFree += "false";
+        }
+
+        var urlFilterRemote = "&remote="
+        if(jQuery('#remote-play').prop('checked')) {
+            regex.push('remote')
+            urlFilterRemote += "true";
+        } else {
+            regex.push('online')
+            urlFilterRemote += "false";
+        }
 
         settings = regex.join('|') + (searchTerms.length == 0 ? "" : "|");
 
         dataTable.column(1).search('(' + settings + players + ')', {regex: true}).draw();
         
+        var urlFilterGenres = []
         var genres = jQuery('#genre-list').text().split("|");;
         jQuery.each(jQuery('.genre'), function(i,elem){
             if(jQuery(elem).prop('checked') == false) {
                 genres = genres.filter(e => e !== jQuery(this).val())
+            } else {
+                urlFilterGenres.push(jQuery(this).data("value"))
             }
         })
+        urlFilterGenres = "&genres=" + urlFilterGenres.join(",");
         dataTable.column(3).search('(' + genres.join('|') + ')', {regex: true}).draw();
         
         var players = jQuery('.player-counter').filter(':checked').length; 
@@ -160,7 +212,8 @@ jQuery(document).ready(function ($) {
                 }
             });
         }
-    });
+        window.history.replaceState(null, document.title, window.location.origin + urlFilterPlayers + urlFilterGenres + urlFilterFree + urlFilterRemote);
+    }
 });
 
 jQuery("#random").click(function(e) {

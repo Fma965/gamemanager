@@ -6,8 +6,8 @@
             <h4>Players <span id="player-count"></span></h4>
             {% for player in players %}
                 <span class="tooltips" title="{{ player.name }}">
-                    <img class="avatar-lg" src="{{ player.avatar_url }}"></img>
-                    <input type="checkbox" class="filter-checkbox player-counter" data-value="{{ player.id }}" value="{{ player.id }}"/>
+                    <img class="avatar-lg" src="{{ player.avatar_url }}" alt={{ player.name }}></img>
+                    <input type="checkbox" class="filter-checkbox player-counter" data-name="{{ player.name|lower }}" data-value="{{ player.id }}" value="{{ player.id }}"/>
                 </span>
             {% endfor %}
         </div>
@@ -17,7 +17,7 @@
             {% for genre in genres %}
                 {% set allgenres = allgenres ~ genre.name ~ '|' %}
                 <span>
-                    <input type="checkbox" class="filter-checkbox genre" data-value="{{ genre.name }}" value="{{ genre.name }}" checked/>{{ genre.name }}
+                    <input type="checkbox" class="filter-checkbox genre" data-value="{{ genre.name|lower }}" value="{{ genre.name }}" checked/>{{ genre.name }}
                 </span>
             {% endfor %}
             <span id="genre-list" style="display:none;">{{ allgenres|trim('|', 'right') }}</span>
