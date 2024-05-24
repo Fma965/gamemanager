@@ -1,3 +1,4 @@
+
 jQuery(document).ready(function ($) {
     dataTable = $('#games').DataTable({
         "language": {
@@ -132,10 +133,10 @@ jQuery(document).ready(function ($) {
             }
             
             var free = url.searchParams.get("free");
-            if (free) jQuery('#free-games').prop( "checked", false);
+            if (free == "false") jQuery('#free-games').prop( "checked", false);
 
             var remote = url.searchParams.get("remote");
-            if (remote) jQuery('#remote-play').prop( "checked", false );
+            if (remote == "false") jQuery('#remote-play').prop( "checked", false );
 
             FilterTable();
         }
@@ -198,8 +199,6 @@ jQuery(document).ready(function ($) {
         dataTable.column(3).search('(' + genres.join('|') + ')', {regex: true}).draw();
         
         var players = jQuery('.player-counter').filter(':checked').length; 
-        jQuery('#player-count').text(players);
-        jQuery('#game-count').text(jQuery('#games tr').filter(':visible').length - 1);
         if(players != 0) {
             jQuery.each(jQuery('#games tr'), function(i,elem){
                 if(i == 0) return;
@@ -213,12 +212,136 @@ jQuery(document).ready(function ($) {
                 }
             });
         }
+
+        jQuery('#player-count').text(players);
+        jQuery('#game-count').text(jQuery('#games tr:visible').length - 1);
+
         window.history.replaceState(null, document.title, window.location.origin + urlFilterPlayers + urlFilterGenres + urlFilterFree + urlFilterRemote);
     }
 });
 
+// Create new wheel object specifying the parameters at creation time.
+let theWheel = new Winwheel({
+    'textFontSize' : 22,    // Set font size as desired.
+    'responsive'   : true,  // This wheel is responsive!
+    'animation' :           // Specify the animation to use.
+    {
+        'type'     : 'spinToStop',
+        'duration' : 5,
+        'spins'    : 10,
+        'callbackFinished' : alertDone,
+        'callbackSound'    : playSound,   // Function to call when the tick sound is to be triggered.
+        'soundTrigger'     : 'segment'        // Specify pins are to trigger the sound, the other option is 'segment'.
+    },
+});
+
+let audio = new Audio('/assets/audio/tick.mp3');  // Create audio object and load tick.mp3 file.
+
+function playSound()
+{
+    // Stop and rewind the sound if it already happens to be playing.
+    audio.pause();
+    audio.currentTime = 0;
+
+    // Play the sound.
+    audio.play();
+}
+
+function alertDone(indicatedSegment)
+{
+    // Do basic alert of the segment text.
+    // You would probably want to do something more interesting with this information.
+    applause.play();
+    Swal.fire({
+            title: "<strong>"+indicatedSegment.text+"</strong>",
+            iconHtml: '<i class="fa-solid fa-dice"></i>',
+            showCloseButton: false,
+            focusConfirm: false,
+            confirmButtonText: `<i class="fa fa-repeat"></i> Spin Again?`,
+            confirmButtonAriaLabel: "Thumbs up, great!",
+            showCancelButton: true,
+            showDenyButton: true,
+            denyButtonText: `<i class="fa fa-repeat"></i>Remove Game & Spin Again?`
+            }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                Randomizer();
+            } else if (result.isDenied) {
+                Randomizer(false, theWheel.getIndicatedSegment().text);
+            } else {
+                jQuery("#randomizer").hide();
+            };
+            });
+}
+
+let wheelPower    = 0;
+let wheelSpinning = false;
+
 jQuery("#random").click(function(e) {
-    var max = $('#games tr').filter(':visible').length;
-    var rand = rando(1, max - 1);
-    alert(jQuery('#games tr:visible:eq('+rand+') td:eq(0)').text());
+    Randomizer(true);
 })
+
+var randomizerGames = []
+function Randomizer(fresh, excluded) {  
+    theWheel.stopAnimation(false); 
+    theWheel.rotationAngle = 0; 
+    theWheel.draw();            
+    wheelSpinning = false;
+    theWheel.clearCanvas();
+    theWheel.numSegments = 0;
+
+    if(fresh == true) {
+        randomizerGames = [];
+        jQuery.each(jQuery('#games td:first-child:visible'), function(i,elem){
+            if(jQuery(this).text()) {
+                
+                randomizerGames.push(jQuery(this).text());
+            }
+        })
+    }
+
+    if(excluded != "") {
+        var index = randomizerGames.indexOf(excluded);
+        if (index !== -1) {
+            randomizerGames.splice(index, 1);
+        }
+    }
+
+    randomizerGames.forEach(game => {
+        theWheel.addSegment({
+            'text' :game,
+            'fillStyle' : '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0')
+        }, 1);
+    });
+    
+    theWheel.draw();
+    jQuery("#randomizer").show();
+
+    if (wheelSpinning == false) {
+        theWheel.startAnimation();
+        wheelSpinning = true;
+    }
+
+    // Swal.fire({
+    //     title: "<strong>"+jQuery('#games tr:visible:eq('+rand+') td:eq(0)').text()+"</strong>",
+    //     iconHtml: '<i class="fa-solid fa-dice"></i>',
+    //     html: 
+    //     `<div class="randomgame">
+    //       <span><strong>Owned By</strong></span><span>`+jQuery('#games tr:visible:eq('+rand+') td:eq(1)').html()+`</span>
+    //       <span><strong>Genre:</strong> `+jQuery('#games tr:visible:eq('+rand+') td:eq(3)').html()+`</span>
+    //       <span><strong>Platforms:</strong>  `+jQuery('#games tr:visible:eq('+rand+') td:eq(2)').html()+`</span>
+    //       <span><strong>Players:</strong>  `+jQuery('#games tr:visible:eq('+rand+') td:eq(4)').html()+`-`+jQuery('#games tr:visible:eq('+rand+') td:eq(5)').html()+`</span>
+    //       </div>`,
+    //     showCloseButton: true,
+    //     focusConfirm: false,
+    //     confirmButtonText: `
+    //       <i class="fa fa-repeat"></i> Spin Again?
+    //     `,
+    //     confirmButtonAriaLabel: "Thumbs up, great!",
+    //   }).then((result) => {
+    //     /* Read more about isConfirmed, isDenied below */
+    //     if (result.isConfirmed) {
+    //         jQuery("#random").click();
+    //     };
+    //   });
+}

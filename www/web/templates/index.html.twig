@@ -37,6 +37,14 @@
         </div>
     </div>
 
+    <div id="randomizer" align="center" style="position: relative;"> 
+        <img id="marker" src="/assets/img/marker.png"/>
+        <canvas id="canvas" width="1000" height="1000" data-responsiveMinWidth="180" data-responsiveScaleHeight="true" onClick="startSpin();">
+            <p style="{color: white}" align="center">Sorry, your browser doesn't support canvas. Please try another.</p>
+        </canvas>
+        <audio controls="controls" id="applause" src="/assets/audio/applause.mp3" type="audio/mp3"></audio>
+    </div>
+
     <div class="table-responsive table-borderless">
         <table id="games" class="table games stripe" style="width:100%">
             <thead class="thead">
