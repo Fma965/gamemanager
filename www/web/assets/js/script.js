@@ -257,11 +257,11 @@ function alertDone(indicatedSegment)
             iconHtml: '<i class="fa-solid fa-dice"></i>',
             showCloseButton: false,
             focusConfirm: false,
-            confirmButtonText: `<i class="fa fa-repeat"></i> Spin Again?`,
+            confirmButtonText: `<i class="fa fa-repeat"></i>&nbsp; Spin Again`,
             confirmButtonAriaLabel: "Thumbs up, great!",
             showCancelButton: true,
             showDenyButton: true,
-            denyButtonText: `<i class="fa fa-repeat"></i>Remove Game & Spin Again?`
+            denyButtonText: `<i class="fa fa-repeat"></i>&nbsp; Remove Game & Spin Again`
             }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
