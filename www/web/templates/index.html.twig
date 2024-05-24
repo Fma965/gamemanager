@@ -3,7 +3,7 @@
     <h3>Hello {{ userData.name|capitalize }}!</h3>
     <div class="filter-wrapper">
         <div id="players">
-            <h4>Players <span id="player-count"></span></h4>
+            <h4><span style="margin-left: 0px" id="player-count">0</span> Players</h4>
             {% for player in players %}
                 <span class="tooltips" title="{{ player.name }}">
                     <img class="avatar-lg" src="{{ player.avatar_url }}" alt={{ player.name }}></img>
@@ -31,7 +31,10 @@
                 <input type="checkbox" class="filter-checkbox settings tooltips" id="remote-play" data-value="remote" value="remote" title="Include games that not all players own but are playable via Remote Play Together" checked>Remote Play Games
             </span>
         </div>
-        <button class="btn navbar-btn btn-lg btn-success"  href="javascript:void(0)" id="random">Get Random Game</button>
+        <div>
+            <h4 style="text-align:right;"><span id="game-count">0</span> Games</h4>
+            <button class="btn navbar-btn btn-lg btn-success"  href="javascript:void(0)" id="random">Get Random Game</button>
+        </div>
     </div>
 
     <div class="table-responsive table-borderless">

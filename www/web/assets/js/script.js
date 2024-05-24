@@ -198,13 +198,14 @@ jQuery(document).ready(function ($) {
         dataTable.column(3).search('(' + genres.join('|') + ')', {regex: true}).draw();
         
         var players = jQuery('.player-counter').filter(':checked').length; 
+        jQuery('#player-count').text(players);
+        jQuery('#game-count').text(jQuery('#games tr').filter(':visible').length - 1);
         if(players != 0) {
             jQuery.each(jQuery('#games tr'), function(i,elem){
                 if(i == 0) return;
                 var min = jQuery('#games tr:eq('+i+') td:eq(4)').text()
                 var max = jQuery('#games tr:eq('+i+') td:eq(5)').text()
                 
-                jQuery('#player-count').text(players);
                 if((players >= min) && (players <= max)) {    
                     
                 } else {

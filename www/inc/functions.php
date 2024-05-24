@@ -1,7 +1,7 @@
 <?php
 	if (basename($_SERVER['PHP_SELF']) == basename(__FILE__)) {
-			die('Direct access not allowed');
-			exit;
+		die('Direct access not allowed');
+		exit;
 	};
 
 	function get_data($url, $token)
@@ -21,14 +21,14 @@
 	function GetPlayers() 
 	{
 		$url = BACKEND . "/items/players?fields=id,name,avatar_url";		
-        $json = get_data($url,BACKEND_AUTH);
+		$json = get_data($url,BACKEND_AUTH);
 		return $json['data'];
 	}
 
 	function GetGenres() 
 	{
 		$url = BACKEND . "/items/genres?fields=name";		
-        $json = get_data($url,BACKEND_AUTH);
+		$json = get_data($url,BACKEND_AUTH);
 		return $json['data'];
 	}
 
