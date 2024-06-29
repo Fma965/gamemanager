@@ -31,6 +31,7 @@
             "owned_by"=>$game_owned_by,
             "platforms"=>$platforms,
             "genre"=>$game['genre'],
+            "mode"=>$game['mode'],
             "min_players"=>$game['min_players'],
             "max_players"=>$game['max_players'],
             "is_free"=>$game['is_free'],

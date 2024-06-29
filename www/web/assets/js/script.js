@@ -1,3 +1,51 @@
+const uuid = uuidv4();
+
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    .replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0, 
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+// const webSocket = new WebSocket('https://games.f9.casa/ws');
+
+
+let webSocket = null;
+
+function connect_socket() {
+    webSocket = new WebSocket('https://games.f9.casa/ws');
+    heartbeat();
+}
+
+function heartbeat() {
+    if (!webSocket) return;
+    if (webSocket.readyState !== 1) return;
+    webSocket.send(JSON.stringify('{type: "random"}'));
+    
+    console.log("Web Socket - Ping");
+    setTimeout(heartbeat, 500);
+}
+
+connect_socket();
+
+webSocket.onmessage = (event) => {
+    var data = JSON.parse(event.data)
+    if(data.type == "random" && data.uuid != uuid) {
+        alertDone(data, false);
+    }
+};
+
+webSocket.onclose = (event) => {
+    console.log("Web Socket connection lost");
+    connect_socket();
+  };
+
+webSocket.addEventListener("open", () => {
+    console.log("Connected To Web Socket");
+});
+
 
 jQuery(document).ready(function ($) {
     dataTable = $('#games').DataTable({
@@ -15,6 +63,7 @@ jQuery(document).ready(function ($) {
             { data: 'owned_by' },
             { data: 'platforms' },
             { data: 'genre.name' },
+            { data: 'mode.name' },
             { data: 'min_players' },
             { data: 'max_players' },
             { data: 'is_free' },
@@ -51,7 +100,7 @@ jQuery(document).ready(function ($) {
                     });
                     if (type === 'filter') {
                         output += row.remote_play_together == true ? " remote" : "";
-                        output += row.is_free == true ? " free" : "";
+                        output += row.is_free == true ? " free" : " paid";
                     }
                 } 
                 else output = "Not Owned"
@@ -86,14 +135,36 @@ jQuery(document).ready(function ($) {
             render: function ( data, type, row, meta ) {
                 if (type === 'display') {
                     if(data == "Party") return data.replace('Party', '<span class="tooltips genre-icon" title="'+data+'">🎉</span> Party');
-                    if(data == "Action") return data.replace('Action', '<span class="tooltips genre-icon" title="'+data+'">⚔️</span> Action');
                     if(data == "BattleRoyale") return data.replace('BattleRoyale', '<span class="tooltips genre-icon" title="'+data+'">👑</span> Battle Royale');
+                    if(data == "Shooter") return data.replace('Shooter', '<span class="tooltips genre-icon" title="'+data+'">🔫</span> Shooter');
+                    if(data == "SocialDeduction") return data.replace('SocialDeduction', '<span class="tooltips genre-icon" title="'+data+'">🤔</span> Social Deduction');
+                    if(data == "Fighter") return data.replace('Fighter', '<span class="tooltips genre-icon" title="'+data+'">🥷</span> Fighter');
+                    if(data == "Platformer") return data.replace('Platformer', '<span class="tooltips genre-icon" title="'+data+'">🧱</span> Platformer');
+                    if(data == "Strategy") return data.replace('Strategy', '<span class="tooltips genre-icon" title="'+data+'">♟️</span> Strategy');
+                    if(data == "Survival") return data.replace('Survival', '<span class="tooltips genre-icon" title="'+data+'">💀</span> Survival');
+                    if(data == "Puzzle") return data.replace('Puzzle', '<span class="tooltips genre-icon" title="'+data+'">🧩</span> Puzzle');
+                    if(data == "Racing") return data.replace('Racing', '<span class="tooltips genre-icon" title="'+data+'">🚗</span> Racing');
+                    if(data == "Horror") return data.replace('Horror', '<span class="tooltips genre-icon" title="'+data+'">🔪</span> Horror');
+                    if(data == "Cooking") return data.replace('Cooking', '<span class="tooltips genre-icon" title="'+data+'">🧑‍🍳</span> Cooking');
+                    if(data == "Sports") return data.replace('Sports', '<span class="tooltips genre-icon" title="'+data+'">⚽</span> Sports');
+                    if(data == "MOBA") return data.replace('MOBA', '<span class="tooltips genre-icon" title="'+data+'">🏟️</span> Battle Arena');
+                    return data;
+                }
+                else return data;
+            }  
+        },
+        {
+            targets: 4,
+            orderable: true,
+            data: "genre",
+            render: function ( data, type, row, meta ) {
+                if (type === 'display') {
                     return data;
                 }
                 else return data;
             }  
         },{
-            targets: 6,
+            targets: 7,
             orderable: false,
             data: "is_free",
             render: function ( data, type, row, meta ) {
@@ -103,7 +174,7 @@ jQuery(document).ready(function ($) {
                 return data
             } 
         },{
-            targets: 7,
+            targets: 8,
             orderable: false,
             data: "remote_play_together",
             render: function ( data, type, row, meta ) {
@@ -113,22 +184,35 @@ jQuery(document).ready(function ($) {
         
         "initComplete": function(settings, json) {
             jQuery.Zebra_Tooltips(jQuery('.tooltips'));
-
+            var players = null;
+            var genres = null;
+            var modes = null;
             var url = new URL(window.location.href);
             
-            var players = url.searchParams.get("players").toLowerCase().split(",");
+            if (url.searchParams.get("players") !== null) players = url.searchParams.get("players").toLowerCase().split(",");
             if(players !== null) {
                 players.forEach(function(player) {
                     jQuery('.player-counter[data-name="'+player+'"]').prop( "checked", true );
                 });
             }
-            var genres = url.searchParams.get("genres").toLowerCase().split(",");
+
+            if (url.searchParams.get("genres") !== null) genres = url.searchParams.get("genres").toLowerCase().split(",");
             if(genres !== null) {
                 jQuery.each(jQuery('.genre'), function(i,elem){
                     jQuery(elem).prop( "checked", false)
                 });
                 genres.forEach(function(genre) {
                     jQuery('.genre[data-value="'+genre+'"]').prop( "checked", true );
+                });
+            }
+
+            if (url.searchParams.get("modes") !== null) modes = url.searchParams.get("modes").toLowerCase().split(",");
+            if(modes !== null) {
+                jQuery.each(jQuery('.mode'), function(i,elem){
+                    jQuery(elem).prop( "checked", false)
+                });
+                genres.forEach(function(mode) {
+                    jQuery('.genre[data-value="'+mode+'"]').prop( "checked", true );
                 });
             }
             
@@ -197,13 +281,25 @@ jQuery(document).ready(function ($) {
         })
         urlFilterGenres = "&genres=" + urlFilterGenres.join(",");
         dataTable.column(3).search('(' + genres.join('|') + ')', {regex: true}).draw();
+
+        var urlFilterModes = []
+        var modes = jQuery('#mode-list').text().split("|");;
+        jQuery.each(jQuery('.mode'), function(i,elem){
+            if(jQuery(elem).prop('checked') == false) {
+                modes = modes.filter(e => e !== jQuery(this).val())
+            } else {
+                urlFilterModes.push(jQuery(this).data("value"))
+            }
+        })
+        urlFilterModes = "&modes=" + urlFilterModes.join(",");
+        dataTable.column(4).search('(' + modes.join('|') + ')', {regex: true}).draw();
         
         var players = jQuery('.player-counter').filter(':checked').length; 
         if(players != 0) {
             jQuery.each(jQuery('#games tr'), function(i,elem){
                 if(i == 0) return;
-                var min = jQuery('#games tr:eq('+i+') td:eq(4)').text()
-                var max = jQuery('#games tr:eq('+i+') td:eq(5)').text()
+                var min = jQuery('#games tr:eq('+i+') td:eq(5)').text()
+                var max = jQuery('#games tr:eq('+i+') td:eq(6)').text()
                 
                 if((players >= min) && (players <= max)) {    
                     
@@ -216,7 +312,7 @@ jQuery(document).ready(function ($) {
         jQuery('#player-count').text(players);
         jQuery('#game-count').text(jQuery('#games tr:visible').length - 1);
 
-        window.history.replaceState(null, document.title, window.location.origin + urlFilterPlayers + urlFilterGenres + urlFilterFree + urlFilterRemote);
+        window.history.replaceState(null, document.title, window.location.origin + urlFilterPlayers + urlFilterGenres + urlFilterModes + urlFilterFree + urlFilterRemote);
     }
 });
 
@@ -229,7 +325,7 @@ let theWheel = new Winwheel({
         'type'     : 'spinToStop',
         'duration' : 5,
         'spins'    : 10,
-        'callbackFinished' : alertDone,
+        'callbackFinished' : postSpin,
         'callbackSound'    : playSound,   // Function to call when the tick sound is to be triggered.
         'soundTrigger'     : 'segment'        // Specify pins are to trigger the sound, the other option is 'segment'.
     },
@@ -247,23 +343,36 @@ function playSound()
     audio.play();
 }
 
-function alertDone(indicatedSegment)
-{
-    // Do basic alert of the segment text.
-    // You would probably want to do something more interesting with this information.
+function postSpin(data) {
+    const msg = {
+        type: "random",
+        text: data.text,
+        username: jQuery("#username").text(),
+        uuid: uuid,
+    };
+
+    webSocket.send(JSON.stringify(msg));
     applause.play();
+    alertDone(data)
+}
+
+function alertDone(data, manual = true)
+{
+    var text = "";
+    if(!manual) var text = 'Random Game picked by ' + data.username;
     Swal.fire({
-            title: "<strong>"+indicatedSegment.text+"</strong>",
+            title: "<strong>"+data.text+"</strong>",
+            text: text,
             iconHtml: '<i class="fa-solid fa-dice"></i>',
             showCloseButton: false,
             focusConfirm: false,
             confirmButtonText: `<i class="fa fa-repeat"></i>&nbsp; Spin Again`,
             confirmButtonAriaLabel: "Thumbs up, great!",
-            showCancelButton: true,
-            showDenyButton: true,
+            showConfirmButton: manual,
+            showCancelButton: manual,
+            showDenyButton: manual,
             denyButtonText: `<i class="fa fa-repeat"></i>&nbsp; Remove Game & Spin Again`
             }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
                 Randomizer();
             } else if (result.isDenied) {

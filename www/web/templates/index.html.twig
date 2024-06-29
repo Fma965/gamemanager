@@ -1,6 +1,6 @@
 {% include 'parts/header.html.twig' %}
-<div class="card card-body p-5 my-4 rounded-3">
-    <h3>Hello {{ userData.name|capitalize }}!</h3>
+<div id="content" class="card card-body p-5 my-4 rounded-3">
+    <h3>Hello <span id="username">{{ userData.name|capitalize }}</span>!</h3>
     <div class="filter-wrapper">
         <div id="players">
             <h4><span style="margin-left: 0px" id="player-count">0</span> Players</h4>
@@ -22,13 +22,24 @@
             {% endfor %}
             <span id="genre-list" style="display:none;">{{ allgenres|trim('|', 'right') }}</span>
         </div>
+        <div id="modes">
+            <h4>Modes</h4> 
+            {% set allmodes = '' %}
+            {% for mode in modes %}
+                {% set allmodes = allmodes ~ mode.name ~ '|' %}
+                <span>
+                    <input type="checkbox" class="filter-checkbox mode" data-value="{{ mode.name|lower }}" value="{{ mode.name }}" checked/>{{ mode.name }}
+                </span>
+            {% endfor %}
+            <span id="mode-list" style="display:none;">{{ allmodes|trim('|', 'right') }}</span>
+        </div>
         <div id="options">
             <h4>Settings</h4> 
             <span>
-                <input type="checkbox" class="filter-checkbox settings tooltips" id="free-games" data-value="free" value="free"  title="Include games that are free to play" checked>Free Games
+                <input type="checkbox" class="filter-checkbox settings tooltips" id="free-games" data-value="free" value="free"  title="Include games that are free to play" checked>Free
             </span>
             <span>
-                <input type="checkbox" class="filter-checkbox settings tooltips" id="remote-play" data-value="remote" value="remote" title="Include games that not all players own but are playable via Remote Play Together" checked>Remote Play Games
+                <input type="checkbox" class="filter-checkbox settings tooltips" id="remote-play" data-value="remote" value="remote" title="Include games that not all players own but are playable via Remote Play Together" checked>Remote Play
             </span>
         </div>
         <div>
@@ -40,7 +51,7 @@
     <div id="randomizer" align="center" style="position: relative;"> 
         <img id="marker" src="/assets/img/marker.png"/>
         <canvas id="canvas" width="1000" height="1000" data-responsiveMinWidth="180" data-responsiveScaleHeight="true" onClick="startSpin();">
-            <p style="{color: white}" align="center">Sorry, your browser doesn't support canvas. Please try another.</p>
+            <p align="center">Sorry, your browser doesn't support canvas. Please try another.</p>
         </canvas>
         <audio controls="controls" id="applause" src="/assets/audio/applause.mp3" type="audio/mp3"></audio>
     </div>
@@ -53,10 +64,11 @@
                     <th>Owned By</th>
                     <th>Platforms</th>
                     <th>Genre</th>
+                    <th>Game Mode</th>
                     <th><i class="fa-solid fa-user-minus"></i></th>
                     <th><i class="fa-solid fa-user-plus"></i></th>
                     <th>Free</th>
-                    <th>Remote Play Together</th>
+                    <th>Remote Play</th>
                 </tr>
             </thead>
         </table>

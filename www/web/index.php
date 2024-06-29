@@ -7,6 +7,7 @@
         echo $twig->render('index.html.twig', [
             'userData' => isset($_SESSION['userData']) ? $_SESSION['userData'] : [],
             'players' => GetPlayers(),
-            'genres' => GetGenres()
+            'genres' => GetGenres(),
+            'modes' => GetModes()
         ]);
 ?>

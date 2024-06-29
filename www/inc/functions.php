@@ -27,10 +27,15 @@
 
 	function GetGenres() 
 	{
-		$url = BACKEND . "/items/genres?fields=name";		
+		$url = BACKEND . "/items/genres?fields=name&sort=name";	
 		$json = get_data($url,BACKEND_AUTH);
 		return $json['data'];
 	}
 
-	
+	function GetModes() 
+	{
+		$url = BACKEND . "/items/modes?fields=name&sort=name";		
+		$json = get_data($url,BACKEND_AUTH);
+		return $json['data'];
+	}
 ?>
