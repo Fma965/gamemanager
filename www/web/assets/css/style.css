@@ -21,6 +21,7 @@ div:where(.swal2-icon) { border: none !important; }
 #applause { display: none;}
 #marker { position: absolute; right: calc(50% - 45px); }
 #randomizer { padding: 20px 0px;}
+td { white-space: nowrap; }
 
 @media only screen and (max-width: 1200px) {
     .filter-wrapper {

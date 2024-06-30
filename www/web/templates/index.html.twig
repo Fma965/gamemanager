@@ -4,13 +4,17 @@
     <div class="filter-wrapper">
         <div id="players">
             <h4><span style="margin-left: 0px" id="player-count">0</span> Players</h4>
+            {% set allplayers = '' %}
             {% for player in players %}
+                {% set allplayers = allplayers ~ player.name ~ '|' %}
                 <span class="tooltips" title="{{ player.name }}">
                     <img class="avatar-lg" src="{{ player.avatar_url }}" alt={{ player.name }}></img>
-                    <input type="checkbox" class="filter-checkbox player-counter" data-name="{{ player.name|lower }}" data-value="{{ player.id }}" value="{{ player.id }}"/>
+                    <input type="checkbox" class="filter-checkbox player" data-value="{{ player.name|lower }}" value="{{ player.name }}"/>
                 </span>
             {% endfor %}
+            <span id="player-list" style="display:none;">{{ allplayers|trim('|', 'right') }}</span>
         </div>
+        
         <div id="genres">
             <h4>Genres</h4> 
             {% set allgenres = '' %}

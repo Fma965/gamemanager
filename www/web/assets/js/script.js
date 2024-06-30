@@ -93,13 +93,13 @@ jQuery(document).ready(function ($) {
                             } 
                         }
                         if (type === 'filter') {
-                            output += owner.id + ' '; 
+                            output += owner.name + ' '; 
                         }
                     });
-                    if (type === 'filter') {
-                        output += row.remote_play_together == true ? " remote" : "";
-                        output += row.is_free == true ? " free" : " paid";
-                    }
+                    // if (type === 'filter') {
+                    //     //output += row.remote_play_together == true ? " remote" : "";
+                    //     output += row.is_free == true ? " free" : " paid";
+                    // }
                 } 
                 else output = "Not Owned"
                 return output
@@ -150,17 +150,6 @@ jQuery(document).ready(function ($) {
                 }
                 else return data;
             }  
-        },
-        {
-            targets: 4,
-            orderable: true,
-            data: "genre",
-            render: function ( data, type, row, meta ) {
-                if (type === 'display') {
-                    return data;
-                }
-                else return data;
-            }  
         },{
             targets: 7,
             orderable: false,
@@ -169,6 +158,9 @@ jQuery(document).ready(function ($) {
                 if (type === 'display') {
                     return data ? '<i style="color: var(--bs-green);" class="fa-solid fa-circle-check"></i>' : '<i style="color: var(--bs-red);" class="fa-solid fa-circle-xmark"></i>';
                 }
+                if (type === 'filter') {
+                    return data ? "free" : "paid";
+                }  
                 return data
             } 
         },{
@@ -176,50 +168,19 @@ jQuery(document).ready(function ($) {
             orderable: false,
             data: "remote_play_together",
             render: function ( data, type, row, meta ) {
-                return '<img class="icon ' + (data ? 'green-filter"' : 'red-filter"') + ' src="/assets/img/remoteplaytogether.png" />';
+                if (type === 'display') {
+                    return '<img class="icon ' + (data ? 'green-filter"' : 'red-filter"') + ' src="/assets/img/remoteplaytogether.png" />';
+                }
+                if (type === 'filter') {
+                    return data ? "remote" : "online";
+                }  
+                return data
             } 
         }],    
         
         "initComplete": function(settings, json) {
             jQuery.Zebra_Tooltips(jQuery('.tooltips'));
-            var players = null;
-            var genres = null;
-            var modes = null;
-            var url = new URL(window.location.href);
-            
-            if (url.searchParams.get("players") !== null) players = url.searchParams.get("players").toLowerCase().split(",");
-            if(players !== null) {
-                players.forEach(function(player) {
-                    jQuery('.player-counter[data-name="'+player+'"]').prop( "checked", true );
-                });
-            }
-
-            if (url.searchParams.get("genres") !== null) genres = url.searchParams.get("genres").toLowerCase().split(",");
-            if(genres !== null) {
-                jQuery.each(jQuery('.genre'), function(i,elem){
-                    jQuery(elem).prop( "checked", false)
-                });
-                genres.forEach(function(genre) {
-                    jQuery('.genre[data-value="'+genre+'"]').prop( "checked", true );
-                });
-            }
-
-            if (url.searchParams.get("modes") !== null) modes = url.searchParams.get("modes").toLowerCase().split(",");
-            if(modes !== null) {
-                jQuery.each(jQuery('.mode'), function(i,elem){
-                    jQuery(elem).prop( "checked", false)
-                });
-                genres.forEach(function(mode) {
-                    jQuery('.genre[data-value="'+mode+'"]').prop( "checked", true );
-                });
-            }
-            
-            var free = url.searchParams.get("free");
-            if (free == "false") jQuery('#free-games').prop( "checked", false);
-
-            var remote = url.searchParams.get("remote");
-            if (remote == "false") jQuery('#remote-play').prop( "checked", false );
-
+            GetAllURIParams();
             FilterTable();
         }
     });
@@ -228,89 +189,94 @@ jQuery(document).ready(function ($) {
         FilterTable();
     });
 
-    function FilterTable() {
-        dataTable.search('').columns().search('').draw();
-        jQuery('#games tr').show();
+    
+    var url;
+    function GetAllURIParams() {
+        url = new URL(window.location.href);
+        GetURIParam('genres', '.genre');
+        GetURIParam('modes', '.mode');   
+        GetURIParam('players', '.player')     
+        console.log(url.searchParams.get("free"));
+        if (url.searchParams.get("free") == "false") jQuery('#free-games').prop( "checked", false);
+        if (url.searchParams.get("remote") == "false") jQuery('#remote-play').prop( "checked", false );
+    }
 
-        var searchTerms = []
-        var urlFilterPlayers = []
-        jQuery.each(jQuery('.player-counter'), function(i,elem){
-            if(jQuery(elem).prop('checked')) {
-                searchTerms.push(jQuery(this).val());
-                urlFilterPlayers.push(jQuery(this).data("name"))
-            }
-        })
-        urlFilterPlayers = "?players=" + urlFilterPlayers.join(",");
-
-        var players = searchTerms.length == 0 ? "" : '(' + searchTerms.join(' ') + ')';
-        var regex = [];
-        var settings = "";
-
-        var urlFilterFree = "&free="
-        regex.push('paid');
-        if(jQuery('#free-games').prop('checked')) {
-            regex.push('free') 
-            urlFilterFree += "true";
-        } else {
-            urlFilterFree += "false";
-        }
-
-        var urlFilterRemote = "&remote="
-        if(jQuery('#remote-play').prop('checked')) {
-            regex.push('remote')
-            urlFilterRemote += "true";
-        } else {
-            regex.push('online')
-            urlFilterRemote += "false";
-        }
-
-        settings = regex.join('|') + (searchTerms.length == 0 ? "" : "|");
-
-        dataTable.column(1).search('(' + settings + players + ')', {regex: true}).draw();
-        
-        var urlFilterGenres = []
-        var genres = jQuery('#genre-list').text().split("|");;
-        jQuery.each(jQuery('.genre'), function(i,elem){
-            if(jQuery(elem).prop('checked') == false) {
-                genres = genres.filter(e => e !== jQuery(this).val())
-            } else {
-                urlFilterGenres.push(jQuery(this).data("value"))
-            }
-        })
-        urlFilterGenres = "&genres=" + urlFilterGenres.join(",");
-        dataTable.column(3).search('(' + genres.join('|') + ')', {regex: true}).draw();
-
-        var urlFilterModes = []
-        var modes = jQuery('#mode-list').text().split("|");;
-        jQuery.each(jQuery('.mode'), function(i,elem){
-            if(jQuery(elem).prop('checked') == false) {
-                modes = modes.filter(e => e !== jQuery(this).val())
-            } else {
-                urlFilterModes.push(jQuery(this).data("value"))
-            }
-        })
-        urlFilterModes = "&modes=" + urlFilterModes.join(",");
-        dataTable.column(4).search('(' + modes.join('|') + ')', {regex: true}).draw();
-        
-        var players = jQuery('.player-counter').filter(':checked').length; 
-        if(players != 0) {
-            jQuery.each(jQuery('#games tr'), function(i,elem){
-                if(i == 0) return;
-                var min = jQuery('#games tr:eq('+i+') td:eq(5)').text()
-                var max = jQuery('#games tr:eq('+i+') td:eq(6)').text()
-                
-                if((players >= min) && (players <= max)) {    
-                    
-                } else {
-                    jQuery(this).hide();
-                }
+    function GetURIParam(param, classname) {
+        var params = null;
+        if (url.searchParams.get(param) !== null) params = url.searchParams.get(param).toLowerCase().split(",");
+        if(params !== null) {
+            jQuery.each(jQuery(classname), function(i,elem){
+                jQuery(elem).prop( "checked", false)
+            });
+            params.forEach(function(item) {
+                jQuery(classname+'[data-value="'+item+'"]').prop( "checked", true );
             });
         }
+    }
 
-        jQuery('#player-count').text(players);
+    function ResetTable() {
+        dataTable.search('').columns().search('').draw();
+        jQuery('#games tr').show();
+    }
+
+    function FilterCol(param, classname, list, sep, col, first) {
+        var urlFilter = []
+        var items = jQuery(list).text().split("|");
+        jQuery.each(jQuery(classname), function(i,elem){
+            if(jQuery(elem).prop('checked') == false) {
+                items = items.filter(e => e !== jQuery(this).val())
+            } else {
+                urlFilter.push(jQuery(this).data("value"))
+            }
+        })
+        dataTable.column(col).search('(' + items.join(sep) + ')', {regex: true}).draw();
+        console.log('(' + items.join(sep) + ')');
+        return (first ? "?" : "&") + param + "=" + urlFilter.join(",");
+    }
+
+    function FilterTable() {
+        ResetTable();
+
+        var urlParams = FilterCol("players", ".player", "#player-list", " ", 1, true);
+        urlParams = urlParams + FilterCol("genres", ".genre", "#genre-list", "|", 3, false);
+        urlParams = urlParams + FilterCol("modes", ".mode", "#mode-list", "|^", 4, false);
+
+        var cost = "paid";    
+        if(jQuery('#free-games').prop('checked')) {
+            cost = cost + "|free";
+        } else {
+            urlParams = urlParams + "&free=false"
+        }
+        dataTable.column(7).search('(' + cost + ')', {regex: true}).draw();
+        
+
+        var playmode = "online";
+        if(jQuery('#remote-play').prop('checked')) {
+            playmode = playmode + "|remote"
+        } else {
+            urlParams = urlParams + "&remote=false"
+        }
+        dataTable.column(8).search('(' + playmode + ')', {regex: true}).draw();
+        
+        // Code to check player count
+        // var players = jQuery('.player').filter(':checked').length; 
+        // if(players != 0) {
+        //     jQuery.each(jQuery('#games tr'), function(i,elem){
+        //         if(i == 0) return;
+        //         var min = jQuery('#games tr:eq('+i+') td:eq(5)').text()
+        //         var max = jQuery('#games tr:eq('+i+') td:eq(6)').text()
+                
+        //         if((players >= min) && (players <= max)) {    
+                    
+        //         } else {
+        //             //jQuery(this).hide();
+        //         }
+        //     });
+        // }
+        //jQuery('#player-count').text(players);
+
         jQuery('#game-count').text(jQuery('#games tr:visible').length - 1);
-
-        window.history.replaceState(null, document.title, window.location.origin + urlFilterPlayers + urlFilterGenres + urlFilterModes + urlFilterFree + urlFilterRemote);
+        window.history.replaceState(null, document.title, window.location.origin + urlParams);
     }
 });
 
@@ -428,27 +394,4 @@ function Randomizer(fresh, excluded) {
         theWheel.startAnimation();
         wheelSpinning = true;
     }
-
-    // Swal.fire({
-    //     title: "<strong>"+jQuery('#games tr:visible:eq('+rand+') td:eq(0)').text()+"</strong>",
-    //     iconHtml: '<i class="fa-solid fa-dice"></i>',
-    //     html: 
-    //     `<div class="randomgame">
-    //       <span><strong>Owned By</strong></span><span>`+jQuery('#games tr:visible:eq('+rand+') td:eq(1)').html()+`</span>
-    //       <span><strong>Genre:</strong> `+jQuery('#games tr:visible:eq('+rand+') td:eq(3)').html()+`</span>
-    //       <span><strong>Platforms:</strong>  `+jQuery('#games tr:visible:eq('+rand+') td:eq(2)').html()+`</span>
-    //       <span><strong>Players:</strong>  `+jQuery('#games tr:visible:eq('+rand+') td:eq(4)').html()+`-`+jQuery('#games tr:visible:eq('+rand+') td:eq(5)').html()+`</span>
-    //       </div>`,
-    //     showCloseButton: true,
-    //     focusConfirm: false,
-    //     confirmButtonText: `
-    //       <i class="fa fa-repeat"></i> Spin Again?
-    //     `,
-    //     confirmButtonAriaLabel: "Thumbs up, great!",
-    //   }).then((result) => {
-    //     /* Read more about isConfirmed, isDenied below */
-    //     if (result.isConfirmed) {
-    //         jQuery("#random").click();
-    //     };
-    //   });
 }
