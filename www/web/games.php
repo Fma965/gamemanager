@@ -2,10 +2,11 @@
     require_once '/app/inc/config.php';
     require_once '/app/inc/functions.php'; 
 
-    $all_players[] = ["id"=>999, "name"=>"Free", "avatar_url"=>""];
-
     $url = BACKEND . "/items/games?fields=*.*.id,*.*.name,*.*.avatar_url";			
     $json = get_data($url,BACKEND_AUTH);
+
+    $all_players[] = ["id"=>999, "name"=>"Free", "avatar_url"=>""];
+    
     foreach($json['data'] as $game) {
         $game_owned_by = [];
         $platforms = [];

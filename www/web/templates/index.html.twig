@@ -1,57 +1,66 @@
 {% include 'parts/header.html.twig' %}
 <div id="content" class="card card-body p-5 my-4 rounded-3">
     <h3>Hello <span id="username">{{ userData.name|capitalize }}</span>!</h3>
-    <div class="filter-wrapper">
-        <div id="players">
-            <h4><span style="margin-left: 0px" id="player-count">0</span> Players</h4>
-            {% set allplayers = '' %}
-            {% for player in players %}
-                {% set allplayers = allplayers ~ player.name ~ '|' %}
-                <span class="tooltips" title="{{ player.name }}">
-                    <img class="avatar-lg" src="{{ player.avatar_url }}" alt={{ player.name }}></img>
-                    <input type="checkbox" class="filter-checkbox player" data-value="{{ player.name|lower }}" value="{{ player.name }}"/>
-                </span>
-            {% endfor %}
-            <span id="player-list" style="display:none;">{{ allplayers|trim('|', 'right') }}</span>
-        </div>
-        
-        <div id="genres">
-            <h4>Genres</h4> 
-            {% set allgenres = '' %}
-            {% for genre in genres %}
-                {% set allgenres = allgenres ~ genre.name ~ '|' %}
-                <span>
-                    <input type="checkbox" class="filter-checkbox genre" data-value="{{ genre.name|lower }}" value="{{ genre.name }}" checked/>{{ genre.name }}
-                </span>
-            {% endfor %}
-            <span id="genre-list" style="display:none;">{{ allgenres|trim('|', 'right') }}</span>
-        </div>
-        <div id="modes">
-            <h4>Modes</h4> 
-            {% set allmodes = '' %}
-            {% for mode in modes %}
-                {% set allmodes = allmodes ~ mode.name ~ '|' %}
-                <span>
-                    <input type="checkbox" class="filter-checkbox mode" data-value="{{ mode.name|lower }}" value="{{ mode.name }}" checked/>{{ mode.name }}
-                </span>
-            {% endfor %}
-            <span id="mode-list" style="display:none;">{{ allmodes|trim('|', 'right') }}</span>
-        </div>
-        <div id="options">
-            <h4>Settings</h4> 
-            <span>
-                <input type="checkbox" class="filter-checkbox settings tooltips" id="free-games" data-value="free" value="free"  title="Include games that are free to play" checked>Free
-            </span>
-            <span>
-                <input type="checkbox" class="filter-checkbox settings tooltips" id="remote-play" data-value="remote" value="remote" title="Include games that not all players own but are playable via Remote Play Together" checked>Remote Play
-            </span>
-        </div>
-        <div>
-            <h4 style="text-align:right;"><span id="game-count">0</span> Games</h4>
-            <button class="btn navbar-btn btn-lg btn-success"  href="javascript:void(0)" id="random">Get Random Game</button>
-        </div>
-    </div>
+    <div id="menu">
+        <div class="filter-wrapper">
+            <div>
+                <h4 style="margin-left: 0px" id="player-count">0 Players</h4>
+                <div id="players">
+                    {% set allplayers = '' %}
+                    {% for player in players %}
+                        {% set allplayers = allplayers ~ player.name ~ '|' %}
+                        <span class="tooltips" title="{{ player.name }}">
+                            <img class="avatar-lg" src="{{ player.avatar_url }}" alt={{ player.name }}></img>
+                            <input type="checkbox" class="filter-checkbox player" data-value="{{ player.name|lower }}" value="{{ player.name }}"/>
+                        </span>
+                    {% endfor %}
+                    <span id="player-list" style="display:none;">{{ allplayers|trim('|', 'right') }}</span>
+                </div>
+            </div>
 
+            <div>
+                <h4>Genres</h4> 
+                <div id="genres">
+                    {% set allgenres = '' %}
+                    {% for genre in genres %}
+                        {% set allgenres = allgenres ~ genre.name ~ '|' %}
+                        <span>
+                            <input type="checkbox" class="filter-checkbox genre" data-value="{{ genre.name|lower }}" value="{{ genre.name }}" checked/>{{ genre.name }}
+                        </span>
+                    {% endfor %}
+                    <span id="genre-list" style="display:none;">{{ allgenres|trim('|', 'right') }}</span>
+                </div>
+            </div>
+
+            <div>
+                <h4>Modes</h4>
+                <div id="modes">
+                    {% set allmodes = '' %}
+                    {% for mode in modes %}
+                        {% set allmodes = allmodes ~ mode.name ~ '|' %}
+                        <span>
+                            <input type="checkbox" class="filter-checkbox mode" data-value="{{ mode.name|lower }}" value="{{ mode.name }}" checked/>{{ mode.name }}
+                        </span>
+                    {% endfor %}
+                    <span id="mode-list" style="display:none;">{{ allmodes|trim('|', 'right') }}</span>
+                </div>
+            </div>
+            <div>
+                <h4>Settings</h4> 
+                <small>Select Players First</small>
+                <div id="settings">
+                    <span>
+                        <input type="checkbox" class="filter-checkbox settings tooltips" id="free-games" data-value="free" value="free" disabled title="Include games that are free to play" checked>Free
+                    </span>
+                    <span>
+                        <input type="checkbox" class="filter-checkbox settings tooltips" id="remote-play" data-value="remote" value="remote" disabled title="Include games that not all players own but are playable via Remote Play Together" checked>Remote Play
+                    </span>
+                </div>
+            </div>
+        </div>
+        <h4 style="text-align:left;" id="game-count">0 Games</h4>
+        <button class="btn navbar-btn btn-lg btn-success"  href="javascript:void(0)" id="random">Get Random Game</button>
+    </div>
     <div id="randomizer" align="center" style="position: relative;"> 
         <img id="marker" src="/assets/img/marker.png"/>
         <canvas id="canvas" width="1000" height="1000" data-responsiveMinWidth="180" data-responsiveScaleHeight="true" onClick="startSpin();">
@@ -68,7 +77,7 @@
                     <th>Owned By</th>
                     <th>Platforms</th>
                     <th>Genre</th>
-                    <th>Game Mode</th>
+                    <th>Mode</th>
                     <th><i class="fa-solid fa-user-minus"></i></th>
                     <th><i class="fa-solid fa-user-plus"></i></th>
                     <th>Free</th>
