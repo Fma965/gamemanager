@@ -24,11 +24,11 @@
             <div class="container-fluid" style="position: relative;">
                 <div class="d-flex">
                     <a class="navbar-brand" href="/">🎮 Games Manager</a>		
-                </div>
-                <div class="dropdown text-end" style="position: absolute;	top: 12px; right: 24px;">
+                </div> <div class="container-fluid"> Welcome <span id="username">{{ userData.name|capitalize }}</span>!
+                <div class="dropdown text-end" style="position: absolute; top: 12px; right: 24px;">
                     <a href="{{ backend }}/admin/login"><button class="btn btn-sm navbar-btn btn-info"><i class="fa-solid fa-screwdriver-wrench"></i> Backend Login&nbsp; <i class="bi bi-box-arrow-in-right text-white fs-6"></i></button></a>
                 </div>
             </div>
         </nav>
         
-	    <div class="container-fluid"> 
+	    

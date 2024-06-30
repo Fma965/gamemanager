@@ -57,8 +57,8 @@ jQuery(document).ready(function ($) {
         processing: true,
         order: [[ 0, 'asc' ]],
         fixedHeader: {
-            header: true,
-            headerOffset: 252,
+            footer: true,
+            header: false,
         },
         columns: [
             { data: 'name' },
@@ -290,15 +290,6 @@ jQuery(document).ready(function ($) {
         urlParams = urlParams + FilterCol("genres", ".genre", "#genre-list", "|", 3);
         urlParams = urlParams + FilterCol("modes", ".mode", "#mode-list", "|^", 4);
 
-        // var cost = "paid";    
-        // if(jQuery('#free-games').prop('checked')) {
-        //     cost = cost + "|free";
-        //     urlParams = urlParams + "&free=true"
-        // } else {
-        //     urlParams = urlParams + "&free=false"
-        // }
-        // dataTable.column(7).search(cost, {regex: true, smart: false}).draw();
-        // console.log(cost);
         var playercount = jQuery('.player').filter(':checked').length; 
 
         jQuery('#player-count').text(playercount + ((playercount == 0 || playercount > 1) ? " Players" : " Player")); 
