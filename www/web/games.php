@@ -42,5 +42,5 @@
         ];
     }
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($output,true);
+    echo json_encode($output['data'],true);
 ?>

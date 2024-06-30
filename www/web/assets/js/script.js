@@ -9,9 +9,6 @@ function uuidv4() {
     });
 }
 
-// const webSocket = new WebSocket('https://games.f9.casa/ws');
-
-
 let webSocket = null;
 
 function connect_socket() {
@@ -48,273 +45,304 @@ webSocket.addEventListener("open", () => {
 
 
 jQuery(document).ready(function ($) {
-    dataTable = $('#games').DataTable({
-        "language": {
-            "loadingRecords": "Loading Data, Please Wait..."
-        },
-        processing: true,                        
-        dom: 'lrt',
-        paging: false,
-        ajax: '/games.php',
-        processing: true,
-        order: [[ 0, 'asc' ]],
-        columns: [
-            { data: 'name' },
-            { data: 'owned_by' },
-            { data: 'platforms' },
-            { data: 'genre.name' },
-            { data: 'mode.name' },
-            { data: 'min_players' },
-            { data: 'max_players' },
-            { data: 'is_free' },
-            { data: 'remote_play_together' },
-        ],
-        "columnDefs": [ 
-        {
-            targets: 0,
-            orderable: false,
-            data: "name",
-            render: function ( data, type, row, meta ) {
-                var link = row.steam_appid == null ? row.link : 'https://store.steampowered.com/app/' + row.steam_appid
-                return '<a class="datatablelink" style="text-decoration:none;" target="_blank" href="'+ link +'">'+data+'</a>';
-            }  
-        }, 
-        {
-            targets: 1,
-            orderable: false,
-            data: "owned_by",
-            render: function ( data, type, row, meta ) {
-                var output = "";
-                if (Array.isArray(data) && data.length) {
-                    data.forEach(function(owner) {  
-                        if (type === 'display') {
-                            if(owner.name == "Free") {
-                                output = "Free";
-                            } else {
-                                output += '<img class="tooltips avatar" title="'+owner.name+'" src="'+owner.avatar_url+'"></img>';
-                            } 
-                        }
-                        if (type === 'filter') {
-                            output += owner.id + ' '; 
-                        }
-                    });
-                    if (type === 'filter') {
-                        output += row.remote_play_together == true ? " remote" : "";
-                        output += row.is_free == true ? " free" : " paid";
-                    }
-                } 
-                else output = "Not Owned"
-                return output
-            }  
-        }, 
-        {
-            targets: 2,
-            orderable: false,
-            data: "platforms",
-            render: function ( data, type, row, meta ) {
-                if (Array.isArray(data) && data.length) {  
-                    if (type === 'display') {
-                        data = data.join(" ");
-                        data = data.replace('Battle.net', '<a class="datatablelink tooltips color-primary" target="_blank" href="'+row.link+'" title="Battle.net"><img class="icon" src="/assets/img/battlenet.png" /></a>');
-                        data = data.replace('Steam', '<a class="datatablelink tooltips color-primary" href="https://store.steampowered.com/app/'+row.steam_appid+'" title="Steam"><img class="icon" src="/assets/img/steam.png" /></a>');
-                        data = data.replace('Web', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Browser Based"><img class="icon" src="/assets/img/web.png" /></a>');  
-                        data = data.replace('Epic Games', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Epic Games"><img class="icon" src="/assets/img/epic.png" /></a>');  
-                        data = data.replace('Emulator', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Emulator"><img class="icon" src="/assets/img/emulator.png" /></a>');  
-                        data = data.replace('Riot Games', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Riot Games"><img class="icon" src="/assets/img/riot.png" /></a>');  
-                    }
-                    if (type === 'filter') {
-                        data = data.join(" ");
-                    }  
-                }
-                return data;
-            } 
-        },  {
-            targets: 3,
-            orderable: true,
-            data: "genre",
-            render: function ( data, type, row, meta ) {
-                if (type === 'display') {
-                    if(data == "Party") return data.replace('Party', '<span class="tooltips genre-icon" title="'+data+'">🎉</span> Party');
-                    if(data == "BattleRoyale") return data.replace('BattleRoyale', '<span class="tooltips genre-icon" title="'+data+'">👑</span> Battle Royale');
-                    if(data == "Shooter") return data.replace('Shooter', '<span class="tooltips genre-icon" title="'+data+'">🔫</span> Shooter');
-                    if(data == "SocialDeduction") return data.replace('SocialDeduction', '<span class="tooltips genre-icon" title="'+data+'">🤔</span> Social Deduction');
-                    if(data == "Fighter") return data.replace('Fighter', '<span class="tooltips genre-icon" title="'+data+'">🥷</span> Fighter');
-                    if(data == "Platformer") return data.replace('Platformer', '<span class="tooltips genre-icon" title="'+data+'">🧱</span> Platformer');
-                    if(data == "Strategy") return data.replace('Strategy', '<span class="tooltips genre-icon" title="'+data+'">♟️</span> Strategy');
-                    if(data == "Survival") return data.replace('Survival', '<span class="tooltips genre-icon" title="'+data+'">💀</span> Survival');
-                    if(data == "Puzzle") return data.replace('Puzzle', '<span class="tooltips genre-icon" title="'+data+'">🧩</span> Puzzle');
-                    if(data == "Racing") return data.replace('Racing', '<span class="tooltips genre-icon" title="'+data+'">🚗</span> Racing');
-                    if(data == "Horror") return data.replace('Horror', '<span class="tooltips genre-icon" title="'+data+'">🔪</span> Horror');
-                    if(data == "Cooking") return data.replace('Cooking', '<span class="tooltips genre-icon" title="'+data+'">🧑‍🍳</span> Cooking');
-                    if(data == "Sports") return data.replace('Sports', '<span class="tooltips genre-icon" title="'+data+'">⚽</span> Sports');
-                    if(data == "MOBA") return data.replace('MOBA', '<span class="tooltips genre-icon" title="'+data+'">🏟️</span> Battle Arena');
-                    return data;
-                }
-                else return data;
-            }  
-        },
-        {
-            targets: 4,
-            orderable: true,
-            data: "genre",
-            render: function ( data, type, row, meta ) {
-                if (type === 'display') {
-                    return data;
-                }
-                else return data;
-            }  
-        },{
-            targets: 7,
-            orderable: false,
-            data: "is_free",
-            render: function ( data, type, row, meta ) {
-                if (type === 'display') {
-                    return data ? '<i style="color: var(--bs-green);" class="fa-solid fa-circle-check"></i>' : '<i style="color: var(--bs-red);" class="fa-solid fa-circle-xmark"></i>';
-                }
-                return data
-            } 
-        },{
-            targets: 8,
-            orderable: false,
-            data: "remote_play_together",
-            render: function ( data, type, row, meta ) {
-                return '<img class="icon ' + (data ? 'green-filter"' : 'red-filter"') + ' src="/assets/img/remoteplaytogether.png" />';
-            } 
-        }],    
+    // dataTable = $('#games').DataTable({
+    //     "language": {
+    //         "loadingRecords": "Loading Data, Please Wait..."
+    //     },
+    //     processing: true,                        
+    //     dom: 'lrt',
+    //     paging: false,
+    //     ajax: '/games.php',
+    //     processing: true,
+    //     order: [[ 0, 'asc' ]],
+    //     columns: [
+    //         { data: 'name' },
+    //         { data: 'owned_by' },
+    //         { data: 'platforms' },
+    //         { data: 'genre.name' },
+    //         { data: 'mode.name' },
+    //         { data: 'min_players' },
+    //         { data: 'max_players' },
+    //         { data: 'is_free' },
+    //         { data: 'remote_play_together' },
+    //     ],
+    //     "columnDefs": [ 
+    //     {
+    //         targets: 0,
+    //         orderable: false,
+    //         data: "name",
+    //         render: function ( data, type, row, meta ) {
+    //             var link = row.steam_appid == null ? row.link : 'https://store.steampowered.com/app/' + row.steam_appid
+    //             return '<a class="datatablelink" style="text-decoration:none;" target="_blank" href="'+ link +'">'+data+'</a>';
+    //         }  
+    //     }, 
+    //     {
+    //         targets: 1,
+    //         orderable: false,
+    //         data: "owned_by",
+    //         render: function ( data, type, row, meta ) {
+    //             var output = "";
+    //             if (Array.isArray(data) && data.length) {
+    //                 data.forEach(function(owner) {  
+    //                     if (type === 'display') {
+    //                         if(owner.name == "Free") {
+    //                             output = "Free";
+    //                         } else {
+    //                             output += '<img class="tooltips avatar" title="'+owner.name+'" src="'+owner.avatar_url+'"></img>';
+    //                         } 
+    //                     }
+    //                     if (type === 'filter') {
+    //                         output += owner.id + ' '; 
+    //                     }
+    //                 });
+    //                 if (type === 'filter') {
+    //                     output += row.remote_play_together == true ? " remote" : " ";
+    //                     output += row.is_free == true ? " free" : " ";
+    //                 }
+    //             } 
+    //             else output = "Not Owned"
+    //             return output
+    //         }  
+    //     }, 
+    //     {
+    //         targets: 2,
+    //         orderable: false,
+    //         data: "platforms",
+    //         render: function ( data, type, row, meta ) {
+    //             if (Array.isArray(data) && data.length) {  
+    //                 if (type === 'display') {
+    //                     data = data.join(" ");
+    //                     data = data.replace('Battle.net', '<a class="datatablelink tooltips color-primary" target="_blank" href="'+row.link+'" title="Battle.net"><img class="icon" src="/assets/img/battlenet.png" /></a>');
+    //                     data = data.replace('Steam', '<a class="datatablelink tooltips color-primary" href="https://store.steampowered.com/app/'+row.steam_appid+'" title="Steam"><img class="icon" src="/assets/img/steam.png" /></a>');
+    //                     data = data.replace('Web', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Browser Based"><img class="icon" src="/assets/img/web.png" /></a>');  
+    //                     data = data.replace('Epic Games', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Epic Games"><img class="icon" src="/assets/img/epic.png" /></a>');  
+    //                     data = data.replace('Emulator', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Emulator"><img class="icon" src="/assets/img/emulator.png" /></a>');  
+    //                     data = data.replace('Riot Games', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Riot Games"><img class="icon" src="/assets/img/riot.png" /></a>');  
+    //                 }
+    //                 if (type === 'filter') {
+    //                     data = data.join(" ");
+    //                 }  
+    //             }
+    //             return data;
+    //         } 
+    //     },  {
+    //         targets: 3,
+    //         orderable: true,
+    //         data: "genre",
+    //         render: function ( data, type, row, meta ) {
+    //             if (type === 'display') {
+    //                 if(data == "Party") return data.replace('Party', '<span class="tooltips genre-icon" title="'+data+'">🎉</span> Party');
+    //                 if(data == "BattleRoyale") return data.replace('BattleRoyale', '<span class="tooltips genre-icon" title="'+data+'">👑</span> Battle Royale');
+    //                 if(data == "Shooter") return data.replace('Shooter', '<span class="tooltips genre-icon" title="'+data+'">🔫</span> Shooter');
+    //                 if(data == "SocialDeduction") return data.replace('SocialDeduction', '<span class="tooltips genre-icon" title="'+data+'">🤔</span> Social Deduction');
+    //                 if(data == "Fighter") return data.replace('Fighter', '<span class="tooltips genre-icon" title="'+data+'">🥷</span> Fighter');
+    //                 if(data == "Platformer") return data.replace('Platformer', '<span class="tooltips genre-icon" title="'+data+'">🧱</span> Platformer');
+    //                 if(data == "Strategy") return data.replace('Strategy', '<span class="tooltips genre-icon" title="'+data+'">♟️</span> Strategy');
+    //                 if(data == "Survival") return data.replace('Survival', '<span class="tooltips genre-icon" title="'+data+'">💀</span> Survival');
+    //                 if(data == "Puzzle") return data.replace('Puzzle', '<span class="tooltips genre-icon" title="'+data+'">🧩</span> Puzzle');
+    //                 if(data == "Racing") return data.replace('Racing', '<span class="tooltips genre-icon" title="'+data+'">🚗</span> Racing');
+    //                 if(data == "Horror") return data.replace('Horror', '<span class="tooltips genre-icon" title="'+data+'">🔪</span> Horror');
+    //                 if(data == "Cooking") return data.replace('Cooking', '<span class="tooltips genre-icon" title="'+data+'">🧑‍🍳</span> Cooking');
+    //                 if(data == "Sports") return data.replace('Sports', '<span class="tooltips genre-icon" title="'+data+'">⚽</span> Sports');
+    //                 if(data == "MOBA") return data.replace('MOBA', '<span class="tooltips genre-icon" title="'+data+'">🏟️</span> Battle Arena');
+    //                 return data;
+    //             }
+    //             else return data;
+    //         }  
+    //     },
+    //     {
+    //         targets: 4,
+    //         orderable: true,
+    //         data: "genre",
+    //         render: function ( data, type, row, meta ) {
+    //             if (type === 'display') {
+    //                 return data;
+    //             }
+    //             else return data;
+    //         }  
+    //     },{
+    //         targets: 7,
+    //         orderable: false,
+    //         data: "is_free",
+    //         render: function ( data, type, row, meta ) {
+    //             if (type === 'display') {
+    //                 return data ? '<i style="color: var(--bs-green);" class="fa-solid fa-circle-check"></i>' : '<i style="color: var(--bs-red);" class="fa-solid fa-circle-xmark"></i>';
+    //             }
+    //             return data
+    //         } 
+    //     },{
+    //         targets: 8,
+    //         orderable: false,
+    //         data: "remote_play_together",
+    //         render: function ( data, type, row, meta ) {
+    //             return '<img class="icon ' + (data ? 'green-filter"' : 'red-filter"') + ' src="/assets/img/remoteplaytogether.png" />';
+    //         } 
+    //     }],    
         
-        "initComplete": function(settings, json) {
-            jQuery.Zebra_Tooltips(jQuery('.tooltips'));
-            var players = null;
-            var genres = null;
-            var modes = null;
-            var url = new URL(window.location.href);
+    //     "initComplete": function(settings, json) {
+    //         jQuery.Zebra_Tooltips(jQuery('.tooltips'));
+    //         var players = null;
+    //         var genres = null;
+    //         var modes = null;
+    //         var url = new URL(window.location.href);
             
-            if (url.searchParams.get("players") !== null) players = url.searchParams.get("players").toLowerCase().split(",");
-            if(players !== null) {
-                players.forEach(function(player) {
-                    jQuery('.player-counter[data-name="'+player+'"]').prop( "checked", true );
-                });
-            }
+    //         if (url.searchParams.get("players") !== null) players = url.searchParams.get("players").toLowerCase().split(",");
+    //         if(players !== null) {
+    //             players.forEach(function(player) {
+    //                 jQuery('.player-counter[data-name="'+player+'"]').prop( "checked", true );
+    //             });
+    //         }
 
-            if (url.searchParams.get("genres") !== null) genres = url.searchParams.get("genres").toLowerCase().split(",");
-            if(genres !== null) {
-                jQuery.each(jQuery('.genre'), function(i,elem){
-                    jQuery(elem).prop( "checked", false)
-                });
-                genres.forEach(function(genre) {
-                    jQuery('.genre[data-value="'+genre+'"]').prop( "checked", true );
-                });
-            }
+    //         if (url.searchParams.get("genres") !== null) genres = url.searchParams.get("genres").toLowerCase().split(",");
+    //         if(genres !== null) {
+    //             jQuery.each(jQuery('.genre'), function(i,elem){
+    //                 jQuery(elem).prop( "checked", false)
+    //             });
+    //             genres.forEach(function(genre) {
+    //                 jQuery('.genre[data-value="'+genre+'"]').prop( "checked", true );
+    //             });
+    //         }
 
-            if (url.searchParams.get("modes") !== null) modes = url.searchParams.get("modes").toLowerCase().split(",");
-            if(modes !== null) {
-                jQuery.each(jQuery('.mode'), function(i,elem){
-                    jQuery(elem).prop( "checked", false)
-                });
-                genres.forEach(function(mode) {
-                    jQuery('.genre[data-value="'+mode+'"]').prop( "checked", true );
-                });
-            }
+    //         if (url.searchParams.get("modes") !== null) modes = url.searchParams.get("modes").toLowerCase().split(",");
+    //         if(modes !== null) {
+    //             jQuery.each(jQuery('.mode'), function(i,elem){
+    //                 jQuery(elem).prop( "checked", false)
+    //             });
+    //             genres.forEach(function(mode) {
+    //                 jQuery('.genre[data-value="'+mode+'"]').prop( "checked", true );
+    //             });
+    //         }
             
-            var free = url.searchParams.get("free");
-            if (free == "false") jQuery('#free-games').prop( "checked", false);
+    //         var free = url.searchParams.get("free");
+    //         if (free == "false") jQuery('#free-games').prop( "checked", false);
 
-            var remote = url.searchParams.get("remote");
-            if (remote == "false") jQuery('#remote-play').prop( "checked", false );
+    //         var remote = url.searchParams.get("remote");
+    //         if (remote == "false") jQuery('#remote-play').prop( "checked", false );
 
-            FilterTable();
-        }
-    });
+    //         FilterTable();
+    //     }
+    // });
 
-    jQuery(document).on("change", "input[class^='filter-checkbox']", function () {
-        FilterTable();
-    });
+    // jQuery(document).on("change", "input[class^='filter-checkbox']", function () {
+    //     FilterTable();
+    // });
 
-    function FilterTable() {
-        dataTable.search('').columns().search('').draw();
-        jQuery('#games tr').show();
+    // function FilterTable() {
+    //     dataTable.search('').columns().search('').draw();
+    //     jQuery('#games tr').show();
 
-        var searchTerms = []
-        var urlFilterPlayers = []
-        jQuery.each(jQuery('.player-counter'), function(i,elem){
-            if(jQuery(elem).prop('checked')) {
-                searchTerms.push(jQuery(this).val());
-                urlFilterPlayers.push(jQuery(this).data("name"))
-            }
-        })
-        urlFilterPlayers = "?players=" + urlFilterPlayers.join(",");
+    //     var searchTerms = []
+    //     var urlFilterPlayers = []
+    //     jQuery.each(jQuery('.player-counter'), function(i,elem){
+    //         if(jQuery(elem).prop('checked')) {
+    //             searchTerms.push(jQuery(this).val());
+    //             urlFilterPlayers.push(jQuery(this).data("name"))
+    //         }
+    //     })
+    //     urlFilterPlayers = "?players=" + urlFilterPlayers.join(",");
 
-        var players = searchTerms.length == 0 ? "" : '(' + searchTerms.join(' ') + ')';
-        var regex = [];
-        var settings = "";
+    //     var players = searchTerms.length == 0 ? "" : '(' + searchTerms.join(' ') + ')';
+    //     var regex = [];
+    //     var settings = "";
 
-        var urlFilterFree = "&free="
-        regex.push('paid');
-        if(jQuery('#free-games').prop('checked')) {
-            regex.push('free') 
-            urlFilterFree += "true";
-        } else {
-            urlFilterFree += "false";
-        }
+    //     var urlFilterFree = "&free="
+    //     regex.push('paid');
+    //     if(jQuery('#free-games').prop('checked')) {
+    //         regex.push('free') 
+    //         urlFilterFree += "true";
+    //     } else {
+    //         urlFilterFree += "false";
+    //     }
 
-        var urlFilterRemote = "&remote="
-        if(jQuery('#remote-play').prop('checked')) {
-            regex.push('remote')
-            urlFilterRemote += "true";
-        } else {
-            regex.push('online')
-            urlFilterRemote += "false";
-        }
+    //     var urlFilterRemote = "&remote="
+    //     if(jQuery('#remote-play').prop('checked')) {
+    //         regex.push('remote')
+    //         urlFilterRemote += "true";
+    //     } else {
+    //         regex.push('online')
+    //         urlFilterRemote += "false";
+    //     }
 
-        settings = regex.join('|') + (searchTerms.length == 0 ? "" : "|");
+    //     settings = regex.join('|') + (searchTerms.length == 0 ? "" : "|");
 
-        dataTable.column(1).search('(' + settings + players + ')', {regex: true}).draw();
+    //     dataTable.column(1).search('(' + settings + players + ')', {regex: true}).draw();
+    //     console.log(('(' + settings + players + ')'));
         
-        var urlFilterGenres = []
-        var genres = jQuery('#genre-list').text().split("|");;
-        jQuery.each(jQuery('.genre'), function(i,elem){
-            if(jQuery(elem).prop('checked') == false) {
-                genres = genres.filter(e => e !== jQuery(this).val())
-            } else {
-                urlFilterGenres.push(jQuery(this).data("value"))
-            }
-        })
-        urlFilterGenres = "&genres=" + urlFilterGenres.join(",");
-        dataTable.column(3).search('(' + genres.join('|') + ')', {regex: true}).draw();
+    //     var urlFilterGenres = []
+    //     var genres = jQuery('#genre-list').text().split("|");;
+    //     jQuery.each(jQuery('.genre'), function(i,elem){
+    //         if(jQuery(elem).prop('checked') == false) {
+    //             genres = genres.filter(e => e !== jQuery(this).val())
+    //         } else {
+    //             urlFilterGenres.push(jQuery(this).data("value"))
+    //         }
+    //     })
+    //     urlFilterGenres = "&genres=" + urlFilterGenres.join(",");
+    //     dataTable.column(3).search('(' + genres.join('|') + ')', {regex: true}).draw();
 
-        var urlFilterModes = []
-        var modes = jQuery('#mode-list').text().split("|");;
-        jQuery.each(jQuery('.mode'), function(i,elem){
-            if(jQuery(elem).prop('checked') == false) {
-                modes = modes.filter(e => e !== jQuery(this).val())
-            } else {
-                urlFilterModes.push(jQuery(this).data("value"))
-            }
-        })
-        urlFilterModes = "&modes=" + urlFilterModes.join(",");
-        dataTable.column(4).search('(' + modes.join('|') + ')', {regex: true}).draw();
+    //     var urlFilterModes = []
+    //     var modes = jQuery('#mode-list').text().split("|");;
+    //     jQuery.each(jQuery('.mode'), function(i,elem){
+    //         if(jQuery(elem).prop('checked') == false) {
+    //             modes = modes.filter(e => e !== jQuery(this).val())
+    //         } else {
+    //             urlFilterModes.push(jQuery(this).data("value"))
+    //         }
+    //     })
+    //     urlFilterModes = "&modes=" + urlFilterModes.join(",");
+    //     dataTable.column(4).search('(' + modes.join('|') + ')', {regex: true}).draw();
         
-        var players = jQuery('.player-counter').filter(':checked').length; 
-        if(players != 0) {
-            jQuery.each(jQuery('#games tr'), function(i,elem){
-                if(i == 0) return;
-                var min = jQuery('#games tr:eq('+i+') td:eq(5)').text()
-                var max = jQuery('#games tr:eq('+i+') td:eq(6)').text()
+    //     var players = jQuery('.player-counter').filter(':checked').length; 
+    //     if(players != 0) {
+    //         jQuery.each(jQuery('#games tr'), function(i,elem){
+    //             if(i == 0) return;
+    //             var min = jQuery('#games tr:eq('+i+') td:eq(5)').text()
+    //             var max = jQuery('#games tr:eq('+i+') td:eq(6)').text()
                 
-                if((players >= min) && (players <= max)) {    
+    //             if((players >= min) && (players <= max)) {    
                     
-                } else {
-                    jQuery(this).hide();
-                }
-            });
-        }
+    //             } else {
+    //                 jQuery(this).hide();
+    //             }
+    //         });
+    //     }
 
-        jQuery('#player-count').text(players);
-        jQuery('#game-count').text(jQuery('#games tr:visible').length - 1);
+    //     jQuery('#player-count').text(players);
+    //     jQuery('#game-count').text(jQuery('#games tr:visible').length - 1);
 
-        window.history.replaceState(null, document.title, window.location.origin + urlFilterPlayers + urlFilterGenres + urlFilterModes + urlFilterFree + urlFilterRemote);
-    }
+    //     window.history.replaceState(null, document.title, window.location.origin + urlFilterPlayers + urlFilterGenres + urlFilterModes + urlFilterFree + urlFilterRemote);
+    // }
+    table.setData("/games.php");
 });
+
+var table = new Tabulator("#games", {
+    layout:"fitColumns",
+    placeholder:"No Data Set",
+    columns:[
+        {title:"Name", field:"name", sorter:"string", width:200},
+
+        {title:"Owned By", field:"owned_by", sorter:"string", width:200, mutator:ownedbyMutator},
+        
+        {title:"Platform", field:"platform", sorter:"string", width:200},
+        {title:"Genre", field:"genre", sorter:"string", width:200},
+        {title:"Mode", field:"mode", sorter:"string", width:200},
+        {title:"Min Players", field:"min_players", sorter:"string", width:200},
+        {title:"Max Players", field:"max_players", sorter:"string", width:200},
+        {title:"Free", field:"is_free", sorter:"string", width:200},
+        {title:"Remote Play", field:"remote_play_together", sorter:"string", width:200},
+    ],
+});
+
+var ownedbyMutator = function(value, data, type, params, component){
+    
+    //value - original value of the cell
+    //data - the data for the row
+    //type - the type of mutation occurring  (data|edit)
+    //params - the mutatorParams object from the column definition
+    //component - when the "type" argument is "edit", this contains the cell component for the edited cell, otherwise it is the column component for the column
+
+    return value; //return the new value for the cell data.
+}
 
 // Create new wheel object specifying the parameters at creation time.
 let theWheel = new Winwheel({
