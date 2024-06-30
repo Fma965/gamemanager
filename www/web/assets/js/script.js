@@ -48,11 +48,6 @@ function GetAllURIParams() {
     if (url.searchParams.get("remote") == "false") {
         jQuery('#remote-play').prop("checked", false );
     }
-
-    if( jQuery('.player').filter(':checked').length > 0) {
-        jQuery('#remote-play').prop("disabled", false);
-        jQuery('#free-games').prop("disabled", false);
-    }
 }
 
 function GetURIParam(param, classname) {
@@ -67,11 +62,6 @@ function GetURIParam(param, classname) {
         });
     }
 }
-
-jQuery(document).on("change", ".player", function () {
-    jQuery('#remote-play').prop("disabled", false);
-    jQuery('#free-games').prop("disabled", false);
-});
 
 jQuery(document).on("change", "input[class^='filter-checkbox']", function () {
     FilterTable();
@@ -91,6 +81,7 @@ dataTable = $('#games').DataTable({
         footer: true,
         header: false,
     },
+    responsive: true,
     columns: [
         { data: 'name' },
         { data: 'owned_by' },
@@ -104,15 +95,13 @@ dataTable = $('#games').DataTable({
     ],
     "columnDefs": [ 
     {
+        responsivePriority: 1,
         targets: 0,
-        orderable: false,
+        orderable: true,
         data: "name",
-        render: function ( data, type, row, meta ) {
-            var link = row.steam_appid == null ? row.link : 'https://store.steampowered.com/app/' + row.steam_appid
-            return '<a class="datatablelink" style="text-decoration:none;" target="_blank" href="'+ link +'">'+data+'</a>';
-        }  
     }, 
     {
+        responsivePriority: 2,
         targets: 1,
         orderable: false,
         data: "owned_by",
@@ -146,12 +135,12 @@ dataTable = $('#games').DataTable({
             if (Array.isArray(data) && data.length) {  
                 if (type === 'display') {
                     data = data.join(" ");
-                    data = data.replace('Battle.net', '<a class="datatablelink tooltips color-primary" target="_blank" href="'+row.link+'" title="Battle.net"><img class="icon" src="/assets/img/battlenet.png" /></a>');
-                    data = data.replace('Steam', '<a class="datatablelink tooltips color-primary" href="https://store.steampowered.com/app/'+row.steam_appid+'" title="Steam"><img class="icon" src="/assets/img/steam.png" /></a>');
-                    data = data.replace('Web', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Browser Based"><img class="icon" src="/assets/img/web.png" /></a>');  
-                    data = data.replace('Epic Games', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Epic Games"><img class="icon" src="/assets/img/epic.png" /></a>');  
-                    data = data.replace('Emulator', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Emulator"><img class="icon" src="/assets/img/emulator.png" /></a>');  
-                    data = data.replace('Riot Games', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Riot Games"><img class="icon" src="/assets/img/riot.png" /></a>');  
+                    data = data.replace('Battle.net', '<a class="datatablelink tooltips color-primary" target="_blank" href="'+row.link+'" title="Battle.net"><img class="platform-icon" src="/assets/img/battlenet.png" /></a>');
+                    data = data.replace('Steam', '<a class="datatablelink tooltips color-primary" href="https://store.steampowered.com/app/'+row.steam_appid+'" title="Steam"><img class="platform-icon" src="/assets/img/steam.png" /></a>');
+                    data = data.replace('Web', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Browser Based"><img class="platform-icon" src="/assets/img/web.png" /></a>');  
+                    data = data.replace('Epic Games', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Epic Games"><img class="platform-icon" src="/assets/img/epic.png" /></a>');  
+                    data = data.replace('Emulator', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Emulator"><img class="platform-icon" src="/assets/img/emulator.png" /></a>');  
+                    data = data.replace('Riot Games', '<a class="datatablelink tooltips color-primary" href="'+row.link+'" title="Riot Games"><img class="platform-icon" src="/assets/img/riot.png" /></a>');  
                 }
                 if (type === 'filter') {
                     data = data.join(" ");
@@ -160,6 +149,7 @@ dataTable = $('#games').DataTable({
             return data;
         } 
     },  {
+        responsivePriority: 3,
         targets: 3,
         orderable: true,
         data: "genre",
@@ -170,6 +160,7 @@ dataTable = $('#games').DataTable({
             else return data;
         }  
     },{
+        responsivePriority: 4,
         targets: 7,
         orderable: false,
         data: "is_free",
@@ -183,6 +174,7 @@ dataTable = $('#games').DataTable({
             return data
         } 
     },{
+        responsivePriority: 5,
         targets: 8,
         orderable: false,
         data: "remote_play_together",
@@ -213,13 +205,12 @@ dataTable.search.fixed('range', function (searchStr, data, index) {
     return false;
 });
 
-function ResetTable() {
+function FilterTable() {
     dataTable.search('').columns().search('').draw();
     jQuery('#games tr').show();
-}
 
-function FilterTable() {
-    ResetTable()
+    jQuery('#remote-play').prop("disabled", jQuery('.player').filter(':checked').length == 0);
+    jQuery('#free-games').prop("disabled", jQuery('.player').filter(':checked').length == 0);
 
     var urlFilter = []
     var players = jQuery("#player-list").text().split("|");
@@ -321,11 +312,8 @@ let audio = new Audio('/assets/audio/tick.mp3');  // Create audio object and loa
 
 function playSound()
 {
-    // Stop and rewind the sound if it already happens to be playing.
     audio.pause();
     audio.currentTime = 0;
-
-    // Play the sound.
     audio.play();
 }
 
@@ -334,6 +322,7 @@ function postSpin(data) {
         type: "random",
         text: data.text,
         username: jQuery("#username").text(),
+        filters: window.location.href,
         uuid: uuid,
     }));
     applause.play();
@@ -343,10 +332,10 @@ function postSpin(data) {
 function alertDone(data, manual = true)
 {
     var text = "";
-    if(!manual) var text = 'Random Game picked by ' + data.username;
+    if(!manual) var text = 'Random Game picked by <strong>' + data.username + '</strong> <button onclick="location.href=\''+data.filters+'\'" type="button" class="swal2-confirm swal2-styled" style="display: inline-block;"><i class="fa fa-globe"></i>&nbsp; Load ' + data.username + '\'s Filters</button>';
     Swal.fire({
-            title: "<strong>"+data.text+"</strong>",
-            text: text,
+            title: '<strong>'+data.text+'</strong>',
+            html: text,
             iconHtml: '<i class="fa-solid fa-dice"></i>',
             showCloseButton: false,
             focusConfirm: false,

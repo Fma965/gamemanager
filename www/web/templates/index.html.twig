@@ -43,7 +43,7 @@
                 <span id="mode-list" style="display:none;">{{ allmodes|trim('|', 'right') }}</span>
             </div>
         </div>
-        <div>
+        <div class="flex-spacing">
             <h4>Settings</h4> 
             <small>Select Players First</small>
             <div id="settings">
@@ -54,10 +54,10 @@
                     <input type="checkbox" class="filter-checkbox settings tooltips" id="remote-play" data-value="remote" value="remote" disabled title="Include games that not all players own but are playable via Remote Play Together. It will also show games not owned by any current player" checked>Remote Play
                 </span>
             </div>
-            <h4 class="pt-4" style="text-align:left;" id="game-count">0 Games</h4>
+            <h3 class="pt-4" style="text-align:left;" id="game-count">0 Games</h3>
         </div>
     </div>
-    <button class="btn navbar-btn btn-lg btn-success"  href="javascript:void(0)" id="random">Get Random Game</button>
+    <button class="btn navbar-btn btn-lg btn-success"  href="javascript:void(0)" id="random"><i class="fa-solid fa-dice"></i> Get Random Game</button>
     <div id="randomizer" align="center" style="position: relative;"> 
         <img id="marker" src="/assets/img/marker.png"/>
         <canvas id="canvas" width="1000" height="1000" data-responsiveMinWidth="180" data-responsiveScaleHeight="true" onClick="startSpin();">
@@ -76,10 +76,10 @@
                     <th>Platforms</th>
                     <th>Genre</th>
                     <th>Mode</th>
-                    <th><i class="fa-solid fa-user-minus"></i></th>
-                    <th><i class="fa-solid fa-user-plus"></i></th>
+                    <th class="tooltips" title="Min Players"><i class="fa-solid fa-user-minus"></i></th>
+                    <th class="tooltips" title="Max Players"><i class="fa-solid fa-user-plus"></i></th>
                     <th>Free</th>
-                    <th>Remote Play</th>
+                    <th class="tooltips" title="Remote Play Together">Remote</th>
                 </tr>
             </thead>
             <tfoot class="tfoot">
@@ -89,10 +89,10 @@
                     <th>Platforms</th>
                     <th>Genre</th>
                     <th>Mode</th>
-                    <th><i class="fa-solid fa-user-minus"></i></th>
-                    <th><i class="fa-solid fa-user-plus"></i></th>
+                    <th class="tooltips" title="Min Players"><i class="fa-solid fa-user-minus"></i></th>
+                    <th class="tooltips" title="Max Players"><i class="fa-solid fa-user-plus"></i></th>
                     <th>Free</th>
-                    <th>Remote Play</th>
+                    <th class="tooltips" title="Remote Play Together">Remote</th>
                 </tr>
             </tfoot>
         </table>

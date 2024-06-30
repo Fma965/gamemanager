@@ -1,87 +1,65 @@
-h3 { margin-top: 0px; color: white; margin-bottom: 1rem; } 
+#genres, #players, #modes, #settings { display: grid; grid-gap: 0 2rem; }
+#genres { grid-template-columns: repeat(3, 1fr); }
+#players { grid-template-columns: repeat(4, 1fr); grid-gap: 1rem 1rem; }
+#modes, #settings { grid-template-columns: repeat(1, 1fr); }
+#controls { position: sticky; top:0px; z-index: 1;}
+#username{ color: white; }
+#randomizer { display: none; padding: 20px 0px;}
+#applause { display: none;}
+#marker { position: absolute; right: calc(50% - 45px); }
+
+h4 { text-decoration: underline;}
+
+.platform-icon { height:26px; padding:0px; margin-right:5px;}
+.filter-wrapper { display: flex; justify-content:space-around;}
+.genre-icon { font-size: 1.25rem;}
+.avatar { height: 32px; margin-right:5px; border-radius: 25%;}
+.avatar-lg { height: 32px; border-radius: 25%;}
 .filter-checkbox { margin-right: 0.5rem;}
 .container-fluid { max-width: 1400px; }
-.fa-circle-check, .fa-circle-xmark, .fa-user-group { font-size: 1.5rem;}
-.genre-icon { font-size: 1.25rem;}
-.avatar { height: 26px; margin-right:5px; border-radius: 25%;}
-.avatar-lg { height: 32px; border-radius: 25%;}
+.flex-spacing { display: flex; flex-direction: column; justify-content: space-around; }
 
-.filter-wrapper { display: flex; justify-content:space-around;}
-.icon { height:26px; padding:0px; margin-right:5px;}
+table.dataTable > tbody > tr.child ul.dtr-details { width: 100%; display: flex; flex-direction: column;}
+table.dataTable > tfoot > tr > th { border-top: none !important; }
+table.dataTable > tbody > tr > td { white-space: nowrap; }
+
+.fa-circle-check, .fa-circle-xmark { font-size: 1.5rem;}
 .green-filter { filter: invert(60%) sepia(82%) saturate(404%) hue-rotate(71deg) brightness(197%) contrast(82%); }
 .red-filter { filter: invert(40%) sepia(78%) saturate(5000%) hue-rotate(328deg) brightness(100%) contrast(100%); }
 
 .Zebra_Tooltip{background:0 0;position:absolute;z-index:8000}.Zebra_Tooltip .Zebra_Tooltip_Message{background:#000;border-radius:5px;box-shadow:0 0 6px rgba(0,0,0,.6);color:#fff;font-size:12px;font-family:Tahoma,Arial,Helvetica,sans-serif;line-height:1.4;*margin-right:0;max-width:250px;padding:10px;position:relative;_width:expression(document.body.clientWidth > 250px ? '250px': 'auto');border:0 solid #000}.Zebra_Tooltip .Zebra_Tooltip_Message.Zebra_Tooltip_Has_Close{padding-right:23px}.Zebra_Tooltip .Zebra_Tooltip_Arrow{position:absolute;width:20px;height:10px;overflow:hidden}.Zebra_Tooltip .Zebra_Tooltip_Arrow.Zebra_Tooltip_Arrow_Bottom{bottom:0}.Zebra_Tooltip .Zebra_Tooltip_Arrow.Zebra_Tooltip_Arrow_Bottom div{top:0;border-color:#000 transparent transparent;_border-bottom-color:pink}.Zebra_Tooltip .Zebra_Tooltip_Arrow.Zebra_Tooltip_Arrow_Bottom div.Zebra_Tooltip_Arrow_Border{border-color:#000 transparent transparent}.Zebra_Tooltip .Zebra_Tooltip_Arrow.Zebra_Tooltip_Arrow_Top{top:0}.Zebra_Tooltip .Zebra_Tooltip_Arrow.Zebra_Tooltip_Arrow_Top div{bottom:0;border-color:transparent transparent #000;_border-top-color:pink}.Zebra_Tooltip .Zebra_Tooltip_Arrow.Zebra_Tooltip_Arrow_Top div.Zebra_Tooltip_Arrow_Border{border-color:transparent transparent #000}.Zebra_Tooltip .Zebra_Tooltip_Arrow div{position:absolute;border-style:solid;border-width:10px;width:0;height:0;left:0;_border-left-color:pink;_border-right-color:pink;_filter:chroma(color=pink)}.Zebra_Tooltip .Zebra_Tooltip_Arrow div.Zebra_Tooltip_Arrow_Border{border-width:10px;box-shadow:0 0 6px rgba(0,0,0,.6);left:0}.Zebra_Tooltip .Zebra_Tooltip_Close{color:#fff;font-family:Arial,sans-serif;font-size:18px;line-height:1;padding:0 4px;position:absolute;right:2px;text-decoration:none;top:2px}.Zebra_Tooltip .Zebra_Tooltip_Close:hover{color:#000;background:#c2d076;border-radius:5px}
-#username{ color: white; }
-#controls { position: sticky; top:0px; z-index: 1;}
-#genres { 
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 0 2rem;
+.swal2-icon {  border: none !important; }
+
+@media only screen and (max-width: 1200px) {
+  #genres, #players { grid-template-columns: repeat(3, 1fr); }
+  #modes, #settings { grid-template-columns: repeat(1, 1fr); }
 }
 
-#players {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-gap: 1rem 1rem;
+@media only screen and (max-width: 992px) {
+  #genres, #players { grid-template-columns: repeat(2, 1fr); }
+  #modes, #settings { grid-template-columns: repeat(1, 1fr); }
 }
 
-#modes { 
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  grid-gap: 0 2rem;
+@media only screen and (max-width: 768px) {
+  #genres, #players, #modes, #settings { grid-template-columns: repeat(1, 1fr); }
+  #controls { position: inherit;}
+  
+  table.dataTable > tbody > tr.child ul.dtr-details > li { justify-content: space-between; }
+
+  .avatar-lg { height: 24px; border-radius: 25%;}
+  .icon { margin-right: 0;}  
+  .welcome { display: none; }
 }
 
-#settings { 
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  grid-gap: 0 2rem;
-}
-
-.randomgame { display: flex;    flex-direction: column;    gap: 10px;  }
-div:where(.swal2-icon) { border: none !important; }
-.randomgame .avatar {    height: 32px; }
-#randomizer { display: none; }
-#applause { display: none;}
-#marker { position: absolute; right: calc(50% - 45px); }
-#randomizer { padding: 20px 0px;}
-td { white-space: nowrap; }
-
-  @media only screen and (max-width: 1100px) {
-    #genres, #players {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    #modes, #settings { 
-      grid-template-columns: repeat(1, 1fr);
-    }
-
+@media only screen and (max-width: 600px) {
+  #genres, #modes, #settings, #players { 
+    grid-template-columns: repeat(2, 1fr);
+    margin: 1rem 0rem;
   }
+  #players { grid-template-columns: repeat(4, 1fr); }
 
-  @media only screen and (max-width: 800px) {
-    #genres, #players, #modes, #settings { 
-      grid-template-columns: repeat(1, 1fr);
-    }
+  input[type='checkbox'] { width:2rem; height:2rem;}
 
-    .avatar-lg { height: 24px; border-radius: 25%;}
-  }
-
-  @media only screen and (max-width: 500px) {
-    .filter-wrapper { flex-direction: column;}
-    
-    #genres, #modes, #settings,  #players { 
-      grid-template-columns: repeat(2, 1fr);
-      margin: 1rem 0rem;
-    }
-
-    #players { 
-      grid-template-columns: repeat(4, 1fr);
-    }
-
-    .avatar-lg { height: 32px; border-radius: 25%;}
-  }
-
-
-table.dataTable > tfoot > tr > th { 
-  border-top: none !important;
+  .filter-wrapper { flex-direction: column;}
+  .avatar-lg { height: 36px; border-radius: 25%; margin-bottom: 20px;}
 }
