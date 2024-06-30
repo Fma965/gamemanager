@@ -1,5 +1,5 @@
 {% include 'parts/header.html.twig' %}
-<div id="controls" class="container-fluid card card-body p-3 my-4 pb-5 rounded-top-3">
+<div id="controls" class="container-fluid card card-body p-3 my-4 rounded-top-3">
     <div class="filter-wrapper">
         <div>
             <h4 style="margin-left: 0px" id="player-count">0 Players</h4>
@@ -51,7 +51,7 @@
                     <input type="checkbox" class="filter-checkbox settings tooltips" id="free-games" data-value="free" value="free" disabled title="Include games that are free to play" checked>Free
                 </span>
                 <span>
-                    <input type="checkbox" class="filter-checkbox settings tooltips" id="remote-play" data-value="remote" value="remote" disabled title="Include games that not all players own but are playable via Remote Play Together" checked>Remote Play
+                    <input type="checkbox" class="filter-checkbox settings tooltips" id="remote-play" data-value="remote" value="remote" disabled title="Include games that not all players own but are playable via Remote Play Together. It will also show games not owned by any current player" checked>Remote Play
                 </span>
             </div>
             <h4 class="pt-4" style="text-align:left;" id="game-count">0 Games</h4>
@@ -66,7 +66,7 @@
         <audio controls="controls" id="applause" src="/assets/audio/applause.mp3" type="audio/mp3"></audio>
     </div>
 </div>
-<div id="content" class="container-fluid card card-body p-1 my-2 rounded-3">
+<div id="content" class="container-fluid card card-body p-1 my-2 rounded-bottom-3">
     <div class="table-responsive table-borderless">
         <table id="games" class="table games stripe rounded-3" style="width:100%">
             <thead class="thead">
