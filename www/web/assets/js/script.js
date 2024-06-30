@@ -316,34 +316,117 @@ jQuery(document).ready(function ($) {
 });
 
 var table = new Tabulator("#games", {
-    layout:"fitColumns",
+    layout:"fitDataFill",
     placeholder:"No Data Set",
     columns:[
-        {title:"Name", field:"name", sorter:"string", width:200},
+        {title:"Name", field:"name", sorter:"string"},
 
-        {title:"Owned By", field:"owned_by", sorter:"string", width:200, mutator:ownedbyMutator},
-        
-        {title:"Platform", field:"platform", sorter:"string", width:200},
-        {title:"Genre", field:"genre", sorter:"string", width:200},
-        {title:"Mode", field:"mode", sorter:"string", width:200},
-        {title:"Min Players", field:"min_players", sorter:"string", width:200},
-        {title:"Max Players", field:"max_players", sorter:"string", width:200},
-        {title:"Free", field:"is_free", sorter:"string", width:200},
-        {title:"Remote Play", field:"remote_play_together", sorter:"string", width:200},
+        {title:"Owned By", field:"owned_by", sorter:"string", formatter:function(cell, formatterParams, onRendered){
+            //cell - the cell component
+            //formatterParams - parameters set for the column
+            //onRendered - function to call when the formatter has been rendered
+            var data = cell.getValue();
+            var output = "";
+            data.forEach(function(owner) {  
+                if(owner.name == "Free") {
+                    output = "Free";
+                } else {
+                    output += '<img class="tooltips avatar" title="'+owner.name+'" src="'+owner.avatar_url+'"></img>';
+                } 
+            });
+            return output; //return the contents of the cell;
+        },
+        },
+        {title:"Platform", field:"platforms", sorter:"string"},
+        {title:"Genre", field:"genre.name", sorter:"string", headerFilter: multiSelectHeaderFilter},
+        {title:"Mode", field:"mode.name", sorter:"string"},
+        {title:"Min Players", field:"min_players", sorter:"string"},
+        {title:"Max Players", field:"max_players", sorter:"string"},
+        {title:"Free", field:"is_free", sorter:"string"},
+        {title:"Remote Play", field:"remote_play_together", sorter:"string"},
     ],
 });
 
-var ownedbyMutator = function(value, data, type, params, component){
+
+const allGenres = [
+    "BattleRoyale",
+    "Cooking",
+    "Fighter",
+    "Horror",
+    "MOBA",
+    "Party",
+    "Platformer",
+    "Puzzle",
+    "Racing",
+    "Shooter",
+    "SocialDeduction",
+    "Sports",
+    "Strategy",
+    "Survival"
+  ];
+  function multiSelectHeaderFilter(cell) {
+		            
+    var values = jQuery('#genre-list').text().split("|");
+  
+    const filterFunc = (rowData) => {
+      return values.includes(rowData['genre'].name);
+    }
+  
+    // const getSelectedValues = (multiSelect) => {
+    //   var result = [];
+    //   var options = multiSelect && multiSelect.options;
+    //   var opt;
+  
+    //   for (var i = 0, iLen = options.length; i < iLen; i++) {
+    //     opt = options[i];
+  
+    //     if (opt.selected) {
+    //       result.push(opt.value || opt.text);
+    //     }
+    //   }
+    //   console.log(result);
+    //   return result;
+      
+    // }
+
+    const getSelectedValues = () => {
+        var result = [];
+        jQuery.each(jQuery('.genre'), function(i,elem){
+            if(jQuery(elem).prop('checked')) {
+                console.log(jQuery(elem).prop('checked'));
+                result.push(elem.value);
+            }
+        })
+        console.log(result);
+        return result;
+    }
+  
+    const onChange = () => {
+      var editor = document.getElementById('genreSelector');
+      values = getSelectedValues(editor);
+      cell.getColumn().getTable().removeFilter(filterFunc);
+      cell.getColumn().getTable().addFilter(filterFunc);
+    }
+  
+    var select = document.createElement("select");
+    select.multiple = "multiple";
+    select.classList.add('selectpicker');
+    select.id = 'genreSelector';
+    select.style = 'width: 100%';
+    jQuery('#genre-list').text().split("|").forEach(processingType => {
+        select.innerHTML += "<option selected='selected'>" + processingType + "</option>";
+    });
+
     
-    //value - original value of the cell
-    //data - the data for the row
-    //type - the type of mutation occurring  (data|edit)
-    //params - the mutatorParams object from the column definition
-    //component - when the "type" argument is "edit", this contains the cell component for the edited cell, otherwise it is the column component for the column
-
-    return value; //return the new value for the cell data.
-}
-
+    cell.getColumn().getTable().addFilter(filterFunc);
+    var elements = document.getElementsByClassName("genre");
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('change', onChange);
+    }
+  }
+  
+  
+//#region Wheel
 // Create new wheel object specifying the parameters at creation time.
 let theWheel = new Winwheel({
     'textFontSize' : 22,    // Set font size as desired.
@@ -382,33 +465,6 @@ function postSpin(data) {
     webSocket.send(JSON.stringify(msg));
     applause.play();
     alertDone(data)
-}
-
-function alertDone(data, manual = true)
-{
-    var text = "";
-    if(!manual) var text = 'Random Game picked by ' + data.username;
-    Swal.fire({
-            title: "<strong>"+data.text+"</strong>",
-            text: text,
-            iconHtml: '<i class="fa-solid fa-dice"></i>',
-            showCloseButton: false,
-            focusConfirm: false,
-            confirmButtonText: `<i class="fa fa-repeat"></i>&nbsp; Spin Again`,
-            confirmButtonAriaLabel: "Thumbs up, great!",
-            showConfirmButton: manual,
-            showCancelButton: manual,
-            showDenyButton: manual,
-            denyButtonText: `<i class="fa fa-repeat"></i>&nbsp; Remove Game & Spin Again`
-            }).then((result) => {
-            if (result.isConfirmed) {
-                Randomizer();
-            } else if (result.isDenied) {
-                Randomizer(false, theWheel.getIndicatedSegment().text);
-            } else {
-                jQuery("#randomizer").hide();
-            };
-            });
 }
 
 let wheelPower    = 0;
@@ -458,27 +514,32 @@ function Randomizer(fresh, excluded) {
         theWheel.startAnimation();
         wheelSpinning = true;
     }
-
-    // Swal.fire({
-    //     title: "<strong>"+jQuery('#games tr:visible:eq('+rand+') td:eq(0)').text()+"</strong>",
-    //     iconHtml: '<i class="fa-solid fa-dice"></i>',
-    //     html: 
-    //     `<div class="randomgame">
-    //       <span><strong>Owned By</strong></span><span>`+jQuery('#games tr:visible:eq('+rand+') td:eq(1)').html()+`</span>
-    //       <span><strong>Genre:</strong> `+jQuery('#games tr:visible:eq('+rand+') td:eq(3)').html()+`</span>
-    //       <span><strong>Platforms:</strong>  `+jQuery('#games tr:visible:eq('+rand+') td:eq(2)').html()+`</span>
-    //       <span><strong>Players:</strong>  `+jQuery('#games tr:visible:eq('+rand+') td:eq(4)').html()+`-`+jQuery('#games tr:visible:eq('+rand+') td:eq(5)').html()+`</span>
-    //       </div>`,
-    //     showCloseButton: true,
-    //     focusConfirm: false,
-    //     confirmButtonText: `
-    //       <i class="fa fa-repeat"></i> Spin Again?
-    //     `,
-    //     confirmButtonAriaLabel: "Thumbs up, great!",
-    //   }).then((result) => {
-    //     /* Read more about isConfirmed, isDenied below */
-    //     if (result.isConfirmed) {
-    //         jQuery("#random").click();
-    //     };
-    //   });
 }
+
+function alertDone(data, manual = true)
+{
+    var text = "";
+    if(!manual) var text = 'Random Game picked by ' + data.username;
+    Swal.fire({
+        title: "<strong>"+data.text+"</strong>",
+        text: text,
+        iconHtml: '<i class="fa-solid fa-dice"></i>',
+        showCloseButton: false,
+        focusConfirm: false,
+        confirmButtonText: `<i class="fa fa-repeat"></i>&nbsp; Spin Again`,
+        confirmButtonAriaLabel: "Thumbs up, great!",
+        showConfirmButton: manual,
+        showCancelButton: manual,
+        showDenyButton: manual,
+        denyButtonText: `<i class="fa fa-repeat"></i>&nbsp; Remove Game & Spin Again`
+        }).then((result) => {
+        if (result.isConfirmed) {
+            Randomizer();
+        } else if (result.isDenied) {
+            Randomizer(false, theWheel.getIndicatedSegment().text);
+        } else {
+            jQuery("#randomizer").hide();
+        };
+    });
+}
+//#endregion
