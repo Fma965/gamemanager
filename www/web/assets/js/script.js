@@ -1,3 +1,4 @@
+//#region Websocket
 const uuid = uuidv4();
 
 function uuidv4() {
@@ -8,9 +9,6 @@ function uuidv4() {
         return v.toString(16);
     });
 }
-
-// const webSocket = new WebSocket('https://games.f9.casa/ws');
-
 
 let webSocket = null;
 
@@ -45,7 +43,7 @@ webSocket.onclose = (event) => {
 webSocket.addEventListener("open", () => {
     console.log("Connected To Web Socket");
 });
-
+//#endregion
 
 jQuery(document).ready(function ($) {
     dataTable = $('#games').DataTable({
